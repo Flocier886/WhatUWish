@@ -1,0 +1,7 @@
+标题：Allocation Failure 与 Promotion Failure 不是一回事
+一、Allocation Failure
+年轻代分配失败时常触发 Young GC，这本身不一定代表严重异常。
+二、Promotion Failure
+Promotion Failure 更像对象晋升到老年代时空间不足，通常比普通 Allocation Failure 更接近 Full GC 风险。
+三、适合作为干扰项
+二者都带 failure 字样，容易被纯语义召回混在一起，但 query 如果带 promotion 关键字，应更偏向精确命中。

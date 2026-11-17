@@ -1,0 +1,7 @@
+标题：RabbitMQ 重试与死信日志片段
+一、常见关键词
+x-death、redelivered、dead letter exchange、retry count、nack requeue。
+二、边界说明
+看到 ready 增长不一定是消费不过来，也可能是消息在重试队列和死信队列之间反复流转。
+三、检索意义
+如果用户直接贴出 x-death 或 redelivered 片段，增强检索通常更容易比纯向量召回拿到正确文档。

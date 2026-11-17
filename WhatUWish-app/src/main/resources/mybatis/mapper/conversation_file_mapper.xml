@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IConversationFileDao">
+    <resultMap id="SessionMap" type="com.flocier.infrastructure.dao.po.ConversationFileSessionPO">
+        <id column="session_id" property="sessionId"/>
+        <result column="token_hash" property="tokenHash"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="expires_at" property="expiresAt"/>
+    </resultMap>
+    <resultMap id="FileMap" type="com.flocier.infrastructure.dao.po.ConversationFilePO">
+        <id column="file_id" property="fileId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="display_name" property="displayName"/>
+        <result column="mime_type" property="mimeType"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_hash" property="fileHash"/>
+        <result column="storage_type" property="storageType"/>
+        <result column="storage_key" property="storageKey"/>
+        <result column="status" property="status"/>
+        <result column="created_at" property="createdAt"/>
+        <result column="removed_at" property="removedAt"/>
+    </resultMap>
+    <insert id="insertSession" parameterType="com.flocier.infrastructure.dao.po.ConversationFileSessionPO">
+        INSERT INTO conversation_file_session (session_id, token_hash, created_at, expires_at)
+        VALUES (#{sessionId}, #{tokenHash}, #{createdAt}, #{expiresAt})
+    </insert>
+    <select id="findSession" resultMap="SessionMap">
+        SELECT session_id, token_hash, created_at, expires_at FROM conversation_file_session WHERE session_id = #{sessionId}
+    </select>
+    <update id="reserveFileSlot">
+        UPDATE conversation_file_session SET active_file_count = active_file_count + 1
+        WHERE session_id = #{sessionId} AND active_file_count &lt; #{limit}
+    </update>
+    <update id="releaseFileSlot">
+        UPDATE conversation_file_session SET active_file_count = active_file_count - 1
+        WHERE session_id = #{sessionId} AND active_file_count &gt; 0
+    </update>
+    <insert id="insertFile" parameterType="com.flocier.infrastructure.dao.po.ConversationFilePO">
+        INSERT INTO conversation_file (file_id, session_id, display_name, mime_type, file_size, file_hash,
+            storage_type, storage_key, status, created_at, removed_at)
+        VALUES (#{fileId}, #{sessionId}, #{displayName}, #{mimeType}, #{fileSize}, #{fileHash},
+            #{storageType}, #{storageKey}, #{status}, #{createdAt}, #{removedAt})
+    </insert>
+    <select id="findFile" resultMap="FileMap">
+        SELECT * FROM conversation_file WHERE file_id = #{fileId}
+    </select>
+    <select id="listFiles" resultMap="FileMap">
+        SELECT * FROM conversation_file WHERE session_id = #{sessionId}
+        ORDER BY created_at ASC, file_id ASC
+    </select>
+    <update id="changeStatus">
+        UPDATE conversation_file SET status = #{status}, removed_at = #{removedAt}
+        WHERE file_id = #{fileId} AND status = #{expectedStatus}
+    </update>
+</mapper>

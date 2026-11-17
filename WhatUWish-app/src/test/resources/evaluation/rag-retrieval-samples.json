@@ -1,0 +1,188 @@
+[
+  {
+    "queryId": "q_001",
+    "query": "CPU 高但还不确定是锁竞争、自旋还是线程池排队时，先从热线程、blocked 线程和哪些调度信号入手？",
+    "goldChunkIds": [
+      "source:rag_eval_cpu_hot_threads.txt#0",
+      "source:rag_eval_cpu_context_switch_vs_spin.txt#0",
+      "source:rag_eval_cpu_thread_pool_queue.txt#0",
+      "source:rag_eval_cpu_spin_lock_log_fragment.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "cpu_compare_multi"
+  },
+  {
+    "queryId": "q_002",
+    "query": "只看到 GC 很频繁时，怎么区分是 Young GC 抖动、Full GC 风险、metaspace 压力，还是 promotion failure 这类更接近老年代问题？",
+    "goldChunkIds": [
+      "source:rag_eval_young_gc_vs_full_gc.txt#0",
+      "source:rag_eval_full_gc_diagnosis.txt#0",
+      "source:rag_eval_gc_metaspace_oom.txt#0",
+      "source:rag_eval_gc_metaspace_log_fragment.txt#0",
+      "source:rag_eval_gc_allocation_failure_vs_promotion_failure.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "gc_multi"
+  },
+  {
+    "queryId": "q_003",
+    "query": "内存上涨异常时，什么时候该去看 heap dump，什么时候更像 metaspace 或 G1 humongous objects，不该只看 JVM 参数？",
+    "goldChunkIds": [
+      "source:rag_eval_full_gc_diagnosis.txt#0",
+      "source:rag_eval_gc_heap_dump_basics.txt#0",
+      "source:rag_eval_gc_g1_humongous_objects.txt#0",
+      "source:rag_eval_gc_metaspace_oom.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "heap_dump_gc_boundary"
+  },
+  {
+    "queryId": "q_004",
+    "query": "Redis 请求慢时，怎么区分是连接池、网络超时、hotkey、bigkey，还是 commandTimeout 配置过紧或命中了只读副本？",
+    "goldChunkIds": [
+      "source:rag_eval_redis_connection_pool.txt#0",
+      "source:rag_eval_redis_network_timeout.txt#0",
+      "source:rag_eval_redis_hotkey_vs_bigkey.txt#0",
+      "source:rag_eval_redis_bigkey_latency.txt#0",
+      "source:rag_eval_redis_lettuce_command_timeout_config.txt#0",
+      "source:rag_eval_redis_readonly_replica_error.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "redis_multi"
+  },
+  {
+    "queryId": "q_005",
+    "query": "数据库请求慢，像是 explain、锁等待、连接池打满混在一起时，先怎么拆？如果日志出现 Hikari timeout 或 Too many connections 又该怎么判断？",
+    "goldChunkIds": [
+      "source:rag_eval_mysql_slow_sql.txt#0",
+      "source:rag_eval_mysql_lock_waits.txt#0",
+      "source:rag_eval_mysql_connection_exhaustion.txt#0",
+      "source:rag_eval_mysql_hikari_pool_timeout_log.txt#0",
+      "source:rag_eval_mysql_too_many_connections_error.txt#0",
+      "source:rag_eval_mysql_tx_isolation_vs_lock_wait.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "mysql_multi"
+  },
+  {
+    "queryId": "q_006",
+    "query": "如果 SQL 已经走索引还慢，什么时候要考虑覆盖索引、回表成本、index merge，什么时候又该回到锁或事务隔离级别去看？",
+    "goldChunkIds": [
+      "source:rag_eval_mysql_slow_sql.txt#0",
+      "source:rag_eval_mysql_index_merge_covering.txt#0",
+      "source:rag_eval_mysql_tx_isolation_vs_lock_wait.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "mysql_covering_index"
+  },
+  {
+    "queryId": "q_007",
+    "query": "Pod 总是重启，但还没确定是镜像拉取、应用崩溃、探针失败、OOM、节点驱逐，还是 ErrImagePull / ImagePullBackOff 这种镜像侧问题时，优先怎么看？",
+    "goldChunkIds": [
+      "source:rag_eval_k8s_pod_restart.txt#0",
+      "source:rag_eval_k8s_oomkilled_vs_probe_failed.txt#0",
+      "source:rag_eval_k8s_imagepullbackoff_vs_crashloop.txt#0",
+      "source:rag_eval_k8s_node_pressure_eviction.txt#0",
+      "source:rag_eval_k8s_crashloop_backoff_events.txt#0",
+      "source:rag_eval_k8s_probe_timeout_config.txt#0",
+      "source:rag_eval_k8s_errimagepull_vs_imagepullbackoff.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "k8s_multi"
+  },
+  {
+    "queryId": "q_008",
+    "query": "启动慢到底是 Spring 自己慢、循环依赖、配置绑定失败，还是外部依赖第一次连太久、lazy-init 和 warmup 把成本延后了？",
+    "goldChunkIds": [
+      "source:rag_eval_spring_startup_slow.txt#0",
+      "source:rag_eval_spring_bean_cycle_dependency.txt#0",
+      "source:rag_eval_spring_external_dependency_warmup.txt#0",
+      "source:rag_eval_spring_beancurrentlyincreation_log.txt#0",
+      "source:rag_eval_spring_lazy_init_and_warmup.txt#0",
+      "source:rag_eval_spring_configurationproperties_binding_error.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "spring_multi"
+  },
+  {
+    "queryId": "q_009",
+    "query": "RabbitMQ 堆积时，ready、unacked、重试风暴、prefetch 过大、死信重投和 consumer cancelled 分别更像什么根因？",
+    "goldChunkIds": [
+      "source:rag_eval_rabbitmq_backlog.txt#0",
+      "source:rag_eval_rabbitmq_unacked_vs_ready.txt#0",
+      "source:rag_eval_rabbitmq_retry_storm.txt#0",
+      "source:rag_eval_rabbitmq_prefetch_unacked_tuning.txt#0",
+      "source:rag_eval_rabbitmq_retry_dead_letter_log.txt#0",
+      "source:rag_eval_rabbitmq_consumer_cancel_notify.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "rabbitmq_multi"
+  },
+  {
+    "queryId": "q_010",
+    "query": "load 很高但 CPU 使用率不一定高，还可能和磁盘、inode、刷盘、iowait、run queue、No space left on device 或 fs freeze 有关时，该怎么判断？",
+    "goldChunkIds": [
+      "source:rag_eval_cpu_load_vs_cpu_usage.txt#0",
+      "source:rag_eval_disk_io_high.txt#0",
+      "source:rag_eval_disk_inode_exhaustion.txt#0",
+      "source:rag_eval_disk_journal_flush.txt#0",
+      "source:rag_eval_cpu_iowait_vs_runqueue.txt#0",
+      "source:rag_eval_disk_inode_no_space_left_log.txt#0",
+      "source:rag_eval_disk_fs_freeze_vs_journal_flush.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "system_multi"
+  },
+  {
+    "queryId": "q_011",
+    "query": "MCP 里如果要选 Stdio、SSE、Streamable HTTP，还要考虑 499、SSE 重连、工具超时和执行重试的边界时，怎么选型？",
+    "goldChunkIds": [
+      "source:rag_eval_mcp_stdio_vs_sse.txt#0",
+      "source:rag_eval_mcp_streamable_http.txt#0",
+      "source:rag_eval_mcp_tool_timeout_handling.txt#0",
+      "source:rag_eval_mcp_http_499_timeout_log.txt#0",
+      "source:rag_eval_mcp_transport_config_keys.txt#0",
+      "source:rag_eval_mcp_sse_reconnect_vs_tool_retry.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "mcp_multi"
+  },
+  {
+    "queryId": "q_012",
+    "query": "为什么错误码、命令名、配置键这类 query 不能只靠语义召回，还要考虑 BM25、keyword 字段、term query 与 match query？",
+    "goldChunkIds": [
+      "source:rag_eval_elasticsearch_keyword_search.txt#0",
+      "source:rag_eval_vector_vs_keyword_retrieval.txt#0",
+      "source:rag_eval_es_analyzer_vs_keyword_field.txt#0",
+      "source:rag_eval_elasticsearch_error_code_and_keyword_field.txt#0",
+      "source:rag_eval_es_term_query_vs_match_query.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "retrieval_multi"
+  },
+  {
+    "queryId": "q_013",
+    "query": "thread dump 里很多线程 blocked，就一定是死锁吗？如果不是，还可能是线程池排队、自旋竞争或锁等待边界问题吗？",
+    "goldChunkIds": [
+      "source:rag_eval_thread_dump_blocked.txt#0",
+      "source:rag_eval_thread_deadlock_vs_blocked.txt#0",
+      "source:rag_eval_cpu_thread_pool_queue.txt#0",
+      "source:rag_eval_cpu_spin_lock_log_fragment.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "thread_multi"
+  },
+  {
+    "queryId": "q_014",
+    "query": "告警很多时，阈值、for 持续时间、抑制窗口、去重键、group labels 和路由分别是在解决什么问题？",
+    "goldChunkIds": [
+      "source:rag_eval_prometheus_alert_noise.txt#0",
+      "source:rag_eval_alert_suppression_and_duration.txt#0",
+      "source:rag_eval_alert_dedup_routing.txt#0",
+      "source:rag_eval_alert_for_clause_vs_suppress_window.txt#0",
+      "source:rag_eval_alert_routing_group_labels.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "alert_multi"
+  }
+]

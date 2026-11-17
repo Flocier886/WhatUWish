@@ -1,0 +1,7 @@
+标题：term query 与 match query 的边界
+一、term query
+term query 更适合精确值、不分词字段和错误码、配置键、ID 这类原样匹配场景。
+二、match query
+match query 会走 analyzer，更适合自然语言文本，但对带点号、下划线、短横线的配置键不一定友好。
+三、检索启发
+如果用户查询 spring.datasource.hikari.maximum-pool-size 或 READONLY 之类 token，term 或 keyword 往往比 match 更稳。

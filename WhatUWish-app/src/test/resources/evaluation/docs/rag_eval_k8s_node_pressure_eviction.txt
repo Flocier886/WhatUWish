@@ -1,0 +1,10 @@
+标题：节点资源压力导致的驱逐
+
+一、现象
+Pod 被驱逐不一定是应用自身出错，也可能是节点内存、磁盘或 inode 压力触发 kubelet eviction。
+
+二、关键线索
+应关注 node conditions、eviction event、磁盘空间和 inode 使用率。
+
+三、与 OOMKilled 的区别
+OOMKilled 更偏单容器超限；eviction 更偏节点层面资源紧张。

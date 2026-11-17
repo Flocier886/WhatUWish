@@ -1,0 +1,7 @@
+标题：错误码和配置键为什么更依赖 keyword 字段
+一、典型内容
+像 READONLY、ERR max number of clients reached、spring.datasource.hikari.maximum-pool-size 这类词，本质上是精确字符串。
+二、分词风险
+如果只走 analyzer 分词，错误码和配置键容易被切碎，导致召回结果只语义相近却不包含用户真正输入的关键 token。
+三、检索策略
+这类查询更适合让 BM25 或 keyword 字段直接参与召回，再和向量结果融合。

@@ -1,0 +1,14 @@
+scripts:
+  summarize:
+    path: scripts/summarize.py
+    runtime: python
+    description: 汇总输入文本并生成 markdown artifact。
+    required_argument: text
+  dependency_gap:
+    path: scripts/dependency_gap.py
+    runtime: python
+    description: 模拟脚本依赖缺失。
+  timeout:
+    path: scripts/timeout.py
+    runtime: python
+    description: 模拟脚本超时。

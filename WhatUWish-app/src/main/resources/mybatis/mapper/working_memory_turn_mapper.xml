@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IWorkingMemoryTurnDao">
+    <resultMap id="turnMap" type="com.flocier.domain.agent.runtime.memory.WorkingMemoryTurn">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="memory_scope" property="memoryScope"/>
+        <result column="request_id" property="requestId"/>
+        <result column="run_id" property="runId"/>
+        <result column="turn_seq" property="turnSeq"/>
+        <result column="entry_agent" property="entryAgent"/>
+        <result column="status" property="status"/>
+        <result column="schema_version" property="schemaVersion"/>
+        <result column="message_count" property="messageCount"/>
+        <result column="token_estimate" property="tokenEstimate"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+    </resultMap>
+    <select id="selectByRequestId" resultMap="turnMap">
+        SELECT * FROM ai_agent_working_memory_turn WHERE request_id = #{requestId} AND deleted = 0 LIMIT 1
+    </select>
+    <!-- 默认模型上下文只读取主作用域中仍可注入的 READY 轮次。 -->
+    <select id="selectReady" resultMap="turnMap">
+        SELECT * FROM ai_agent_working_memory_turn
+        WHERE session_id = #{sessionId} AND memory_scope = 'main' AND status = 1 AND deleted = 0
+        ORDER BY turn_seq ASC
+    </select>
+    <select id="selectLoadable" resultMap="turnMap">
+        SELECT * FROM ai_agent_working_memory_turn
+        WHERE session_id = #{sessionId} AND memory_scope = 'main' AND status IN (0, 1) AND deleted = 0
+        ORDER BY turn_seq ASC
+    </select>
+    <select id="selectMaxSeq" resultType="java.lang.Integer">
+        SELECT MAX(turn_seq) FROM ai_agent_working_memory_turn
+        WHERE session_id = #{sessionId} AND memory_scope = 'main' AND deleted = 0
+    </select>
+    <insert id="insert" parameterType="com.flocier.domain.agent.runtime.memory.WorkingMemoryTurn" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO ai_agent_working_memory_turn
+        (session_id, memory_scope, request_id, run_id, turn_seq, entry_agent, status, schema_version,
+         message_count, token_estimate, started_at, finished_at)
+        VALUES (#{sessionId}, #{memoryScope}, #{requestId}, #{runId}, #{turnSeq}, #{entryAgent}, #{status},
+                #{schemaVersion}, #{messageCount}, #{tokenEstimate}, #{startedAt}, #{finishedAt})
+    </insert>
+    <!-- 压缩事务中将旧投影标为 INVALID，保留历史行供后续检索。 -->
+    <update id="invalidateReady">
+        UPDATE ai_agent_working_memory_turn SET status = 2
+        WHERE session_id = #{sessionId} AND memory_scope = 'main' AND status = 1 AND deleted = 0
+    </update>
+    <update id="invalidateLoadable">
+        UPDATE ai_agent_working_memory_turn SET status = 2
+        WHERE session_id = #{sessionId} AND memory_scope = 'main' AND status IN (0, 1) AND deleted = 0
+          AND id IN <foreach collection="turnIds" item="turnId" open="(" separator="," close=")">#{turnId}</foreach>
+    </update>
+    <update id="advanceBuilding">
+        UPDATE ai_agent_working_memory_turn
+        SET message_count = message_count + 1, token_estimate = token_estimate + #{tokenEstimate}
+        WHERE id = #{turnId} AND status = 0 AND message_count = #{seqNo} AND deleted = 0
+    </update>
+    <update id="completeBuilding">
+        UPDATE ai_agent_working_memory_turn SET status = 1, finished_at = NOW(3)
+        WHERE request_id = #{segmentId} AND status = 0 AND deleted = 0
+    </update>
+</mapper>

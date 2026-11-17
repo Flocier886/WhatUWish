@@ -1,0 +1,98 @@
+.overlay {
+  position: fixed;
+  z-index: 80;
+  inset: 0;
+  background: rgba(15, 18, 22, .68);
+  backdrop-filter: blur(2px);
+  animation: fadeIn .16s ease-out;
+}
+
+.dialog {
+  position: fixed;
+  z-index: 81;
+  top: 5vh;
+  left: 50%;
+  width: min(1120px, calc(100vw - 48px));
+  height: min(90vh, 900px);
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  border: 1px solid #d6d9dd;
+  border-radius: 14px;
+  background: #fff;
+  box-shadow: 0 24px 70px rgba(15, 18, 22, .25);
+  transform: translateX(-50%);
+  animation: enter .18s ease-out;
+}
+
+.header {
+  min-width: 0;
+  min-height: 72px;
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  padding: 13px 14px 13px 22px;
+  border-bottom: 1px solid #e1e3e6;
+  background: #fbfbfc;
+}
+
+.identity { min-width: 0; flex: 1; }
+.identity h2 { overflow: hidden; color: #20262d; font-size: 16px; line-height: 1.35; letter-spacing: 0; text-overflow: ellipsis; white-space: nowrap; }
+.identity p { margin-top: 5px; color: #737c86; font-size: 11px; letter-spacing: 0; }
+.actions { display: flex; gap: 7px; }
+.iconButton {
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  display: inline-grid;
+  place-items: center;
+  padding: 0;
+  border: 1px solid #d7dade;
+  border-radius: 8px;
+  color: #4b5159;
+  background: #fff;
+  text-decoration: none;
+}
+.iconButton:hover { border-color: #929ca7; color: #1f4f80; }
+.iconButton:focus-visible { outline: 2px solid #52769c; outline-offset: 2px; }
+
+.scrollRoot {
+  min-width: 0;
+  min-height: 0;
+  overflow: auto;
+  overscroll-behavior: contain;
+  padding: 34px clamp(20px, 4vw, 52px) 70px;
+  scroll-behavior: smooth;
+}
+
+.state {
+  min-height: 220px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+  gap: 12px;
+  color: #656b73;
+  font-size: 14px;
+  text-align: center;
+}
+
+.spinner { animation: spin .9s linear infinite; }
+.retryButton { height: 34px; display: inline-flex; align-items: center; gap: 7px; padding: 0 12px; border: 1px solid #cfd4da; border-radius: 5px; color: #333940; background: #fff; font-size: 12px; }
+
+@keyframes fadeIn { from { opacity: 0; } }
+@keyframes enter { from { opacity: 0; transform: translate(-50%, 8px); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 640px) {
+  .dialog { top: 0; width: 100vw; height: 100dvh; max-height: none; border: 0; border-radius: 0; }
+  .header { min-height: 62px; gap: 10px; padding: 10px 8px 10px 14px; }
+  .identity h2 { font-size: 14px; white-space: normal; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: 2; }
+  .identity p { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .scrollRoot { padding: 22px 16px 54px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .overlay, .dialog, .spinner { animation: none; }
+  .scrollRoot { scroll-behavior: auto; }
+}

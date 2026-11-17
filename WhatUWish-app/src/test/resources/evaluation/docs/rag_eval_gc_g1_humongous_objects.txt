@@ -1,0 +1,7 @@
+标题：G1 Humongous Objects 与频繁 Full GC
+一、典型表现
+大对象直接进入老年代或 humongous region，容易导致回收空间碎片化，进而放大 Full GC 风险。
+二、与 metaspace 区别
+metaspace 问题更多出现在类加载、动态代理、热部署后类元数据膨胀，不一定伴随 humongous object 迹象。
+三、排查建议
+如果日志里出现 humongous allocation、to-space exhausted、old region 回收吃紧，应优先联想到 G1 大对象压力。

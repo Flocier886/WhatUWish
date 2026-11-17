@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IToolInvocationLedgerDao">
+
+    <resultMap id="ToolInvocationLedgerMap" type="com.flocier.infrastructure.dao.po.ToolInvocationLedgerPO">
+        <id column="id" property="id"/>
+        <result column="tool_invocation_id" property="toolInvocationId"/>
+        <result column="tool_call_id" property="toolCallId"/>
+        <result column="llm_invocation_id" property="llmInvocationId"/>
+        <result column="dispatch_order" property="dispatchOrder"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="trace_id" property="traceId"/>
+        <result column="step_no" property="stepNo"/>
+        <result column="tool_name" property="toolName"/>
+        <result column="tool_type" property="toolType"/>
+        <result column="tool_version" property="toolVersion"/>
+        <result column="request_summary" property="requestSummary"/>
+        <result column="response_summary" property="responseSummary"/>
+        <result column="request_payload_json" property="requestPayloadJson"/>
+        <result column="response_payload_json" property="responsePayloadJson"/>
+        <result column="latency_ms" property="latencyMs"/>
+        <result column="status" property="status"/>
+        <result column="error_code" property="errorCode"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="artifact_ref" property="artifactRef"/>
+        <result column="idempotency_key" property="idempotencyKey"/>
+        <result column="ext_json" property="extJson"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.ToolInvocationLedgerPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO tool_invocation_ledger (
+            tool_invocation_id, tool_call_id, llm_invocation_id, dispatch_order, run_id, session_id, request_id, trace_id, step_no,
+            tool_name, tool_type, tool_version, request_summary, response_summary, request_payload_json, response_payload_json, latency_ms,
+            status, error_code, error_message, artifact_ref, idempotency_key, ext_json,
+            started_at, finished_at, create_time, update_time
+        ) VALUES (
+            #{toolInvocationId}, #{toolCallId}, #{llmInvocationId}, #{dispatchOrder}, #{runId}, #{sessionId}, #{requestId}, #{traceId}, #{stepNo},
+            #{toolName}, #{toolType}, #{toolVersion}, #{requestSummary}, #{responseSummary}, #{requestPayloadJson}, #{responsePayloadJson}, #{latencyMs},
+            #{status}, #{errorCode}, #{errorMessage}, #{artifactRef}, #{idempotencyKey}, #{extJson},
+            #{startedAt}, #{finishedAt}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.flocier.infrastructure.dao.po.ToolInvocationLedgerPO">
+        UPDATE tool_invocation_ledger
+        SET response_summary = #{responseSummary},
+            response_payload_json = #{responsePayloadJson},
+            latency_ms = #{latencyMs},
+            status = #{status},
+            error_code = #{errorCode},
+            error_message = #{errorMessage},
+            artifact_ref = #{artifactRef},
+            ext_json = #{extJson},
+            finished_at = #{finishedAt},
+            update_time = #{updateTime}
+        WHERE tool_invocation_id = #{toolInvocationId}
+    </update>
+
+    <select id="queryByIdempotencyKey" resultMap="ToolInvocationLedgerMap">
+        SELECT * FROM tool_invocation_ledger WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+    <select id="queryByRunId" resultMap="ToolInvocationLedgerMap">
+        SELECT * FROM tool_invocation_ledger WHERE run_id = #{runId} ORDER BY started_at ASC, create_time ASC
+    </select>
+
+    <select id="queryByRunIds" resultMap="ToolInvocationLedgerMap">
+        SELECT * FROM tool_invocation_ledger WHERE run_id IN
+        <foreach collection="runIds" item="runId" open="(" separator="," close=")">#{runId}</foreach>
+        ORDER BY llm_invocation_id ASC, dispatch_order ASC, started_at ASC, create_time ASC, tool_invocation_id ASC
+    </select>
+
+    <select id="queryByTraceId" resultMap="ToolInvocationLedgerMap">
+        SELECT * FROM tool_invocation_ledger WHERE trace_id = #{traceId} ORDER BY started_at ASC, create_time ASC LIMIT #{limit}
+    </select>
+</mapper>

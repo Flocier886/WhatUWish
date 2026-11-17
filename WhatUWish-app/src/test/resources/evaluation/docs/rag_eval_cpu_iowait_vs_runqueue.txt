@@ -1,0 +1,7 @@
+标题：CPU iowait 高与 run queue 长的边界区分
+一、iowait 高
+iowait 高更像线程在等磁盘或网络块设备返回，CPU 使用率未必很高，但负载可能明显升高。
+二、run queue 长
+run queue 长说明可运行线程很多，往往更偏向 CPU 争抢、调度压力或线程池投递过量。
+三、组合判断
+当用户只说 load 很高时，需要联合看 iowait、run queue、磁盘延迟和热线程，避免把 IO 堵塞误判成纯 CPU 瓶颈。

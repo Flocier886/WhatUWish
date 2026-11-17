@@ -1,0 +1,26 @@
+-- 4D 接管附属状态；Run 和工具调用 ID 与本站 UUID Ledger 保持一致。
+CREATE TABLE IF NOT EXISTS ai_agent_desktop_control (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    control_id VARCHAR(64) NOT NULL,
+    session_id VARCHAR(64) NOT NULL,
+    owner_key VARCHAR(128) NOT NULL,
+    source_run_id VARCHAR(64) NOT NULL,
+    source_request_id VARCHAR(64) NOT NULL,
+    tool_invocation_id VARCHAR(64) NULL,
+    tool_call_id VARCHAR(128) NOT NULL,
+    reason VARCHAR(1024) NOT NULL,
+    stream_url VARCHAR(2048) NOT NULL,
+    hold_until DOUBLE NOT NULL,
+    status VARCHAR(32) NOT NULL DEFAULT 'PENDING',
+    resume_request_id VARCHAR(64) NULL,
+    resume_run_id VARCHAR(64) NULL,
+    agent_id VARCHAR(64) NOT NULL,
+    max_step INT NULL,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    update_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_desktop_control_id (control_id),
+    UNIQUE KEY uk_desktop_control_resume (resume_request_id),
+    KEY idx_desktop_control_session (session_id, create_time),
+    KEY idx_desktop_control_run (source_run_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

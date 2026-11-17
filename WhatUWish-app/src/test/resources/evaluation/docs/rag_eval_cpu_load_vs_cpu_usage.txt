@@ -1,0 +1,10 @@
+标题：CPU Load 高与 CPU Usage 高不是一回事
+
+一、概念差异
+CPU usage 高表示 CPU 正在忙；load 高则表示系统中等待被调度的任务多，可能包括 CPU 争用、IO 阻塞或不可中断睡眠。
+
+二、排查提示
+如果 usage 和 load 都高，更像纯计算热点；如果 load 高但 usage 不高，则要警惕磁盘 IO、锁等待或系统级阻塞。
+
+三、误区
+很多排查只看 CPU 百分比，忽略 load average，容易把 IO 阻塞误判成纯 CPU 问题。

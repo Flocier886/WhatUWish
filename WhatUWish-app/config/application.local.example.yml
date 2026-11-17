@@ -1,0 +1,12 @@
+# 复制为同目录 application.local.yml 后填写本机值；该文件已被 Git 忽略。
+# Java dev 配置会读取本文件，环境变量仍可用于部署覆盖。
+conversation:
+  material:
+    # 与 Python config/application.local.yaml 的 material-bridge.token 完全一致。
+    bridge-token: "在这里填写两端共用的随机令牌"
+
+reactor:
+  agent-browser:
+    enabled: false
+    # 启用 Kernel 时，在 Java 配置中填写对应 Project 的 API Key。
+    api-key: ""

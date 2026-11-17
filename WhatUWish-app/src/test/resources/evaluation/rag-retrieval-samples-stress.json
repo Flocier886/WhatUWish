@@ -1,0 +1,160 @@
+[
+  {
+    "queryId": "s_001",
+    "query": "thread -n 3 之后还要看 blocked 还是 spin",
+    "goldChunkIds": [
+      "source:rag_eval_cpu_hot_threads.txt#0",
+      "source:rag_eval_thread_dump_blocked.txt#0",
+      "source:rag_eval_cpu_spin_lock_log_fragment.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "short_command_like"
+  },
+  {
+    "queryId": "s_002",
+    "query": "Metadata GC Threshold 和 promotion failure 更像 full gc 还是 metaspace",
+    "goldChunkIds": [
+      "source:rag_eval_full_gc_diagnosis.txt#0",
+      "source:rag_eval_gc_metaspace_oom.txt#0",
+      "source:rag_eval_young_gc_vs_full_gc.txt#0",
+      "source:rag_eval_gc_metaspace_log_fragment.txt#0",
+      "source:rag_eval_gc_allocation_failure_vs_promotion_failure.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "short_gc_ambiguous"
+  },
+  {
+    "queryId": "s_003",
+    "query": "RedisCommandTimeoutException 是连接池 网络 还是 bigkey",
+    "goldChunkIds": [
+      "source:rag_eval_redis_connection_pool.txt#0",
+      "source:rag_eval_redis_network_timeout.txt#0",
+      "source:rag_eval_redis_bigkey_latency.txt#0",
+      "source:rag_eval_redis_timeout_log_fragment.txt#0",
+      "source:rag_eval_redis_lettuce_command_timeout_config.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "short_redis_ambiguous"
+  },
+  {
+    "queryId": "s_004",
+    "query": "Connection is not available request timed out after 30000ms 是慢 sql 锁还是连接池",
+    "goldChunkIds": [
+      "source:rag_eval_mysql_slow_sql.txt#0",
+      "source:rag_eval_mysql_lock_waits.txt#0",
+      "source:rag_eval_mysql_hikari_pool_timeout_log.txt#0",
+      "source:rag_eval_mysql_connection_exhaustion.txt#0",
+      "source:rag_eval_mysql_tx_isolation_vs_lock_wait.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "short_mysql_ambiguous"
+  },
+  {
+    "queryId": "s_005",
+    "query": "CrashLoopBackOff 但不是 OOM 是 probe 应用崩了 还是 ErrImagePull",
+    "goldChunkIds": [
+      "source:rag_eval_k8s_pod_restart.txt#0",
+      "source:rag_eval_k8s_oomkilled_vs_probe_failed.txt#0",
+      "source:rag_eval_k8s_imagepullbackoff_vs_crashloop.txt#0",
+      "source:rag_eval_k8s_crashloop_backoff_events.txt#0",
+      "source:rag_eval_k8s_probe_timeout_config.txt#0",
+      "source:rag_eval_k8s_errimagepull_vs_imagepullbackoff.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "short_k8s_ambiguous"
+  },
+  {
+    "queryId": "s_006",
+    "query": "BeanCurrentlyInCreationException 和 bind properties warmup 慢启动怎么区分",
+    "goldChunkIds": [
+      "source:rag_eval_spring_startup_slow.txt#0",
+      "source:rag_eval_spring_bean_cycle_dependency.txt#0",
+      "source:rag_eval_spring_external_dependency_warmup.txt#0",
+      "source:rag_eval_spring_beancurrentlyincreation_log.txt#0",
+      "source:rag_eval_spring_lazy_init_and_warmup.txt#0",
+      "source:rag_eval_spring_configurationproperties_binding_error.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "short_spring_ambiguous"
+  },
+  {
+    "queryId": "s_007",
+    "query": "x-death redelivered ready unacked consumer cancelled",
+    "goldChunkIds": [
+      "source:rag_eval_rabbitmq_unacked_vs_ready.txt#0",
+      "source:rag_eval_rabbitmq_retry_storm.txt#0",
+      "source:rag_eval_rabbitmq_backlog.txt#0",
+      "source:rag_eval_rabbitmq_retry_dead_letter_log.txt#0",
+      "source:rag_eval_rabbitmq_prefetch_unacked_tuning.txt#0",
+      "source:rag_eval_rabbitmq_consumer_cancel_notify.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "keyword_rabbitmq"
+  },
+  {
+    "queryId": "s_008",
+    "query": "load 高但 cpu 不高 是 iowait run queue 还是 no space left on device",
+    "goldChunkIds": [
+      "source:rag_eval_cpu_load_vs_cpu_usage.txt#0",
+      "source:rag_eval_disk_io_high.txt#0",
+      "source:rag_eval_disk_journal_flush.txt#0",
+      "source:rag_eval_cpu_iowait_vs_runqueue.txt#0",
+      "source:rag_eval_disk_inode_no_space_left_log.txt#0",
+      "source:rag_eval_disk_fs_freeze_vs_journal_flush.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "system_short"
+  },
+  {
+    "queryId": "s_009",
+    "query": "499 cancelled sse reconnect stdio streamable http timeout retry",
+    "goldChunkIds": [
+      "source:rag_eval_mcp_stdio_vs_sse.txt#0",
+      "source:rag_eval_mcp_streamable_http.txt#0",
+      "source:rag_eval_mcp_tool_timeout_handling.txt#0",
+      "source:rag_eval_mcp_http_499_timeout_log.txt#0",
+      "source:rag_eval_mcp_transport_config_keys.txt#0",
+      "source:rag_eval_mcp_sse_reconnect_vs_tool_retry.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "mcp_keyword"
+  },
+  {
+    "queryId": "s_010",
+    "query": "READONLY spring.datasource.hikari.maximum-pool-size term query 还是 keyword field",
+    "goldChunkIds": [
+      "source:rag_eval_elasticsearch_keyword_search.txt#0",
+      "source:rag_eval_vector_vs_keyword_retrieval.txt#0",
+      "source:rag_eval_es_analyzer_vs_keyword_field.txt#0",
+      "source:rag_eval_elasticsearch_error_code_and_keyword_field.txt#0",
+      "source:rag_eval_es_term_query_vs_match_query.txt#0",
+      "source:rag_eval_redis_readonly_replica_error.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "retrieval_keyword"
+  },
+  {
+    "queryId": "s_011",
+    "query": "blocked 不一定 deadlock 也可能 queue backlog",
+    "goldChunkIds": [
+      "source:rag_eval_thread_dump_blocked.txt#0",
+      "source:rag_eval_thread_deadlock_vs_blocked.txt#0",
+      "source:rag_eval_cpu_thread_pool_queue.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "thread_short"
+  },
+  {
+    "queryId": "s_012",
+    "query": "for 持续时间 suppress dedup group labels",
+    "goldChunkIds": [
+      "source:rag_eval_alert_suppression_and_duration.txt#0",
+      "source:rag_eval_alert_dedup_routing.txt#0",
+      "source:rag_eval_prometheus_alert_noise.txt#0",
+      "source:rag_eval_alert_for_clause_vs_suppress_window.txt#0",
+      "source:rag_eval_alert_routing_group_labels.txt#0"
+    ],
+    "knowledgeTag": "rag_eval_suite_v3",
+    "category": "alert_keyword"
+  }
+]

@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IRuntimeEventLedgerDao">
+    <resultMap id="RuntimeEventLedgerMap" type="com.flocier.infrastructure.dao.po.RuntimeEventLedgerPO">
+        <id column="id" property="id"/>
+        <result column="runtime_event_id" property="runtimeEventId"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="tool_invocation_id" property="toolInvocationId"/>
+        <result column="sequence_no" property="sequenceNo"/>
+        <result column="upstream_event_id" property="upstreamEventId"/>
+        <result column="event_type" property="eventType"/>
+        <result column="stage" property="stage"/>
+        <result column="status" property="status"/>
+        <result column="occurred_at" property="occurredAt"/>
+        <result column="recorded_at" property="recordedAt"/>
+        <result column="message" property="message"/>
+        <result column="presentation_kind" property="presentationKind"/>
+        <result column="payload_schema_version" property="payloadSchemaVersion"/>
+        <result column="payload_json" property="payloadJson"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="error_code" property="errorCode"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.RuntimeEventLedgerPO">
+        INSERT INTO runtime_event_ledger (
+            runtime_event_id,
+            run_id,
+            session_id,
+            request_id,
+            tool_invocation_id,
+            sequence_no,
+            upstream_event_id,
+            event_type,
+            stage,
+            status,
+            occurred_at,
+            recorded_at,
+            message,
+            presentation_kind,
+            payload_schema_version,
+            payload_json,
+            artifact_id,
+            error_code,
+            error_message,
+            create_time,
+            update_time
+        ) VALUES (
+            #{runtimeEventId},
+            #{runId},
+            #{sessionId},
+            #{requestId},
+            #{toolInvocationId},
+            #{sequenceNo},
+            #{upstreamEventId},
+            #{eventType},
+            #{stage},
+            #{status},
+            #{occurredAt},
+            #{recordedAt},
+            #{message},
+            #{presentationKind},
+            #{payloadSchemaVersion},
+            #{payloadJson},
+            #{artifactId},
+            #{errorCode},
+            #{errorMessage},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <select id="queryByInvocationAndUpstreamEvent" resultMap="RuntimeEventLedgerMap">
+        SELECT *
+        FROM runtime_event_ledger
+        WHERE tool_invocation_id = #{toolInvocationId}
+          AND upstream_event_id = #{upstreamEventId}
+    </select>
+
+    <select id="queryByInvocationAndSequence" resultMap="RuntimeEventLedgerMap">
+        SELECT *
+        FROM runtime_event_ledger
+        WHERE tool_invocation_id = #{toolInvocationId}
+          AND sequence_no = #{sequenceNo}
+    </select>
+
+    <select id="queryByToolInvocationId" resultMap="RuntimeEventLedgerMap">
+        SELECT *
+        FROM runtime_event_ledger
+        WHERE tool_invocation_id = #{toolInvocationId}
+        ORDER BY sequence_no ASC
+    </select>
+
+    <select id="queryByRunId" resultMap="RuntimeEventLedgerMap">
+        SELECT *
+        FROM runtime_event_ledger
+        WHERE run_id = #{runId}
+        ORDER BY tool_invocation_id ASC, sequence_no ASC, runtime_event_id ASC
+    </select>
+</mapper>

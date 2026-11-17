@@ -1,0 +1,26 @@
+skillId: workspace-readme-summarizer
+name: workspace-readme-summarizer
+title: 工作区 README 摘要整理
+description: 读取指定 README 文件，整理中文摘要，并可通过产物工具保存结果
+scenario: 当 Agent 需要先理解某个 README，再形成可追踪的摘要产物时使用
+version: 1.0.0
+toolRequirements:
+  - file_read
+  - artifact_save
+tags:
+  - workspace
+  - summary
+constraints:
+  - 只能读取当前工作区内明确指定的 README 文件
+  - 最终输出必须为中文摘要
+promptTemplates:
+  system: prompts/system.md
+inputSchema: {"type":"object","properties":{"task":{"type":"string"},"readme_path":{"type":"string"},"artifact_name":{"type":"string"}}}
+outputSchema: {"type":"object","properties":{"finalAnswer":{"type":"string"},"artifactRefs":{"type":"array","items":{"type":"string"}}}}
+actions:
+  summarize:
+    type: tool-orchestration
+    description: 读取 README 并生成中文摘要，可按需保存 artifact。
+    artifactPolicy: optional
+    inputSchema: {"type":"object","properties":{"task":{"type":"string"},"readme_path":{"type":"string"},"artifact_name":{"type":"string"}},"required":["readme_path"]}
+    outputSchema: {"type":"object","properties":{"finalAnswer":{"type":"string"},"artifactRefs":{"type":"array","items":{"type":"string"}}}}

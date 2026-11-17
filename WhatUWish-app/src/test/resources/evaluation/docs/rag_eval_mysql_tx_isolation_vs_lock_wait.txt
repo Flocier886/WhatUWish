@@ -1,0 +1,7 @@
+标题：事务隔离级别与锁等待边界
+一、事务隔离级别
+隔离级别影响可见性和并发行为，可能放大 gap lock、next-key lock 等现象。
+二、锁等待
+锁等待是业务上可观测到的结果，用户常看到 lock wait timeout exceeded，却未必意识到隔离级别也是背景因素。
+三、评测意义
+这类文档与“慢 SQL”“锁冲突”高度相近，但 query 若包含 repeatable read、gap lock，应更容易被增强检索选中。

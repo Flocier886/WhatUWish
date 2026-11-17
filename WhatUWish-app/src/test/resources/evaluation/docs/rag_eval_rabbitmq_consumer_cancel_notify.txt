@@ -1,0 +1,7 @@
+标题：consumer cancel notify 与消息堆积
+一、典型现象
+消费者被 broker 取消订阅后，ready 数可能上升，看起来像普通堆积，但根因并不是消费变慢。
+二、容易混淆点
+如果只看 ready 增长，很容易误判成 backlog；若日志里有 basic.cancel、consumer cancelled 等词，方向就不同。
+三、检索价值
+异常短语较固定，适合作为 RabbitMQ 领域的高混淆干扰文档。

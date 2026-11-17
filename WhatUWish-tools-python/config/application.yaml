@@ -1,0 +1,85 @@
+# Python Tool Service 的可提交默认配置。
+# 本机密钥和环境差异请写入 application.local.yaml；部署时可用同名环境变量覆盖。
+server:
+  host: 127.0.0.1
+  port: 18081
+
+web-search:
+  provider: tavily
+  api-base: https://api.tavily.com/search
+  timeout-seconds: 20
+
+# Jina Reader 是可选的正文提取服务，不是搜索引擎。默认 direct 保持既有 SafeWebFetcher 行为；
+# 如需启用，可在 application.local.yaml 覆盖 strategy 和可选的 reader-api-key。
+web-content:
+  strategy: direct
+  reader-base-url: https://r.jina.ai/
+  reader-timeout-seconds: 20
+  reader-min-content-chars: 240
+
+deepsearch-runtime:
+  provider: openai-compatible
+  # Writer 会携带多来源正文并完成一次正式研究摘要，不能沿用普通短请求时限。
+  timeout-seconds: 240
+  # 超时后重试会再次占满同一长请求预算；先让单次请求完整完成，失败则交付来源材料包。
+  max-retries: 0
+  temperature: 0
+  max-output-tokens: 3200
+  # DeepSearch 直接采用 master-style 查询拆分与有限补查；最终来源综合只执行一次。
+  max-context-chars: 48000
+  max-searches: 12
+  max-results-per-search: 12
+  max-fetches: 10
+  search-concurrency: 5
+  fetch-concurrency: 4
+
+# 多步代码分析复用已有模型连接；需要独立模型时在本机配置或环境变量覆盖。
+code-execution:
+  enabled: false
+
+code-interpreter-runtime:
+  max-output-tokens: 4096
+
+# Report 通过独立模型运行时生成正式 Artifact。模型、api-base、api-key 仅可在
+# application.local.yaml 或 REPORT_LLM_* 环境变量中配置，绝不从 Java 请求读取。
+report-runtime:
+  provider: openai-compatible
+  timeout-seconds: 120
+  max-retries: 1
+  temperature: 0
+  # Report 的三套 master-style Prompt 都要求完整交付，Slides 尤其需要足够预算覆盖多页 HTML。
+  max-output-tokens: 8192
+  max-input-chars: 48000
+  max-file-chars: 16000
+  max-artifact-bytes: 2097152
+  delta-batch-chars: 480
+  delta-interval-ms: 350
+  max-delta-chars: 120000
+
+# 图片生成保留独立运行预算。model、api-base、api-key 仅可在
+# application.local.yaml 或 IMAGE_GENERATION_* 部署环境变量中设置，前端与 Java
+# 请求均不可传入或覆盖这些敏感连接信息。
+image-generation-runtime:
+  provider: openai-compatible
+  # 图片生成可能经历 Responses / native edits / legacy / chat 兼容降级，不能沿用
+  # 普通短请求的超时；真实值由服务端配置，单元测试使用 mock upstream。
+  timeout-seconds: 900
+  max-reference-bytes: 10485760
+  max-output-count: 10
+
+# Artifact 默认写入本地。若启用 MinIO/S3，请只在 application.local.yaml 或
+# AI_AGENT_ARTIFACT_* 环境变量中提供 endpoint、bucket 和凭据，保证 Python
+# 生成端与 Java 文件访问端落到同一后端；不得将这些私有信息提交到仓库。
+artifact-storage:
+  type: local_artifact_storage
+  s3-region: us-east-1
+  s3-path-style: true
+  s3-connect-timeout-seconds: 5
+  s3-read-timeout-seconds: 30
+
+# OCR 是可选的独立模型能力；未填写 type 时 image_ocr 明确返回不可用。
+# 可在 application.local.yaml 填 type: vlm-ocr / deepseek-ocr，及对应的
+# api-base/api-key/model 或 deepseek-api-base/deepseek-api-key/deepseek-model。
+# 同名 VLM_*、DEEPSEEK_OCR_*、OCR_TYPE 环境变量兼容新版 master。
+material-ocr:
+  type:

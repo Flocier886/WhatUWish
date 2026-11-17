@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IRunLedgerDao">
+
+    <resultMap id="RunLedgerMap" type="com.flocier.infrastructure.dao.po.RunLedgerPO">
+        <id column="id" property="id"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="trace_id" property="traceId"/>
+        <result column="agent_id" property="agentId"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="user_id" property="userId"/>
+        <result column="trigger_source" property="triggerSource"/>
+        <result column="status" property="status"/>
+        <result column="error_code" property="errorCode"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="summary" property="summary"/>
+        <result column="query_text" property="queryText"/>
+        <result column="idempotency_key" property="idempotencyKey"/>
+        <result column="ext_json" property="extJson"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.RunLedgerPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO run_ledger (
+            run_id, session_id, request_id, trace_id, agent_id, tenant_id, user_id,
+            trigger_source, status, error_code, error_message, summary, query_text,
+            idempotency_key, ext_json, started_at, finished_at, create_time, update_time
+        ) VALUES (
+            #{runId}, #{sessionId}, #{requestId}, #{traceId}, #{agentId}, #{tenantId}, #{userId},
+            #{triggerSource}, #{status}, #{errorCode}, #{errorMessage}, #{summary}, #{queryText},
+            #{idempotencyKey}, #{extJson}, #{startedAt}, #{finishedAt}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateByRunId" parameterType="com.flocier.infrastructure.dao.po.RunLedgerPO">
+        UPDATE run_ledger SET
+            session_id = #{sessionId},
+            request_id = #{requestId},
+            trace_id = #{traceId},
+            agent_id = #{agentId},
+            tenant_id = #{tenantId},
+            user_id = #{userId},
+            trigger_source = #{triggerSource},
+            status = #{status},
+            error_code = #{errorCode},
+            error_message = #{errorMessage},
+            summary = #{summary},
+            query_text = #{queryText},
+            idempotency_key = #{idempotencyKey},
+            ext_json = #{extJson},
+            started_at = #{startedAt},
+            finished_at = #{finishedAt},
+            update_time = #{updateTime}
+        WHERE run_id = #{runId}
+    </update>
+
+    <select id="queryByRunId" resultMap="RunLedgerMap">
+        SELECT * FROM run_ledger WHERE run_id = #{runId}
+    </select>
+
+    <select id="queryByRequestId" resultMap="RunLedgerMap">
+        SELECT * FROM run_ledger WHERE request_id = #{requestId} ORDER BY create_time DESC LIMIT 1
+    </select>
+
+    <select id="queryByIdempotencyKey" resultMap="RunLedgerMap">
+        SELECT * FROM run_ledger WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+    <select id="queryBySessionId" resultMap="RunLedgerMap">
+        SELECT * FROM run_ledger
+        <where>
+            <if test="sessionId != null and sessionId != ''">
+                session_id = #{sessionId}
+            </if>
+        </where>
+        ORDER BY started_at DESC, create_time DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="queryByTraceId" resultMap="RunLedgerMap">
+        SELECT * FROM run_ledger
+        <where>
+            <if test="traceId != null and traceId != ''">
+                trace_id = #{traceId}
+            </if>
+        </where>
+        ORDER BY started_at DESC, create_time DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

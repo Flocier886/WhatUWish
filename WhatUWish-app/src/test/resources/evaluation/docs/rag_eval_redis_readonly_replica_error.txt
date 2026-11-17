@@ -1,0 +1,7 @@
+标题：READONLY You can't write against a read only replica
+一、错误含义
+该报错通常说明请求写到了只读副本，常见于主从切换、路由配置错误或客户端未刷新拓扑。
+二、与超时区别
+它不是性能问题，不应优先去查连接池或 bigkey，而应先确认写流量是否命中了 replica。
+三、检索意义
+READONLY 这种全大写错误码极其适合验证 keyword 字段、BM25 和 rerank 的精确匹配收益。

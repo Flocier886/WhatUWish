@@ -1,0 +1,411 @@
+server:
+  port: 8091
+
+thread:
+  pool:
+    executor:
+      config:
+        core-pool-size: 20
+        max-pool-size: 50
+        keep-alive-time: 5000
+        block-queue-size: 5000
+        policy: CallerRunsPolicy
+
+logging:
+  level:
+    root: info
+  config: classpath:logback-spring.xml
+
+ledger:
+  persistence:
+    type: memory
+
+spring:
+  ai:
+    openai:
+      base-url: https://api.gpt.ge/
+      api-key: test-key
+
+reactor:
+  embedding:
+    # 默认与聊天模型共用同一套 OpenAI 兼容来源；测试时如果要单独切 embedding，只改这组三个值。
+    base-url: ${spring.ai.openai.base-url}
+    api-key: ${spring.ai.openai.api-key}
+    vector-table-name: vector_store_test
+  llm:
+    settings: >-
+      {
+        "defaults": {
+          "model": "default-chat"
+        },
+        "behavior": {
+          "extractUsage": true,
+          "logRawResponse": false,
+          "enableFallback": false
+        },
+        "providers": {
+          "default-openai": {
+            "baseUrl": "${spring.ai.openai.base-url:}",
+            "apiKey": "${spring.ai.openai.api-key:}",
+            "interfacePath": "/v1/chat/completions"
+          }
+        },
+        "models": {
+          "default-chat": {
+            "provider": "default-openai",
+            "model": "gpt-4o-mini",
+            "temperature": 0.7,
+            "maxTokens": 2048
+          }
+        }
+      }
+  tool:
+    tools: >-
+      {
+        "web_search": {
+          "name": "web_search",
+          "type": "python",
+          "description": "通过已配置的真实搜索 Provider 返回公开网页候选来源。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 10
+              }
+            },
+            "required": ["query"]
+          }
+        },
+        "web_fetch": {
+          "name": "web_fetch",
+          "type": "python",
+          "description": "抓取网页正文并提取主要文本内容。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "url": {
+                "type": "string"
+              },
+              "timeoutSeconds": {
+                "type": "number"
+              }
+            },
+            "required": ["url"]
+          }
+        },
+        "deep_search_tool": {
+          "name": "deep_search_tool",
+          "type": "rich_python",
+          "description": "针对需要多来源公开资料支持的复杂研究任务执行独立 DeepSearch；不用于简单单事实查询、网页抓取或正式 HTML/PPT 制作。Python 直接采用查询需求分析、互补查询拆分、并发检索、安全抓取、有限补查判断和最终来源综合主链；quick/standard/deep 控制研究轮次及查询、候选、抓取预算。返回 terminal_completed 或 terminal_partial 且带 Artifact 时，直接消费其来源材料、摘要、researchOutcome 和限制继续回答；需要正式报告时可直接调用 report_tool，运行时会受控使用本次研究材料，不要重调相同研究范围或先读取全文。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/rich-tools/deep-search/stream",
+          "params": {
+            "type": "object",
+            "properties": {
+              "topic": {"type": "string", "minLength": 1, "maxLength": 600, "description": "本次调研的明确主题。只描述要解决的研究对象，不要混入已有工具结果、执行命令或报告排版要求。"},
+              "questions": {"type": "array", "items": {"type": "string"}, "maxItems": 8, "description": "可选的可验证研究维度。每项应是不同的事实、比较或判断问题；省略时由 Python 从 topic 建立保守研究问题。"},
+              "researchDepth": {"type": "string", "enum": ["quick", "standard", "deep"], "description": "研究预算：quick/standard/deep 分别最多进行 1/2/3 轮检索；总计最多 3/6/10 条查询和 3/5/8 次抓取。后续轮次仅在当前材料不足时由工具内部决定，调用方不传内部预算。"},
+              "language": {"type": "string", "maxLength": 32, "description": "最终研究摘要与证据包的期望输出语言，例如 zh-CN 或 en。"},
+              "preferredDomains": {"type": "array", "items": {"type": "string"}, "maxItems": 8, "description": "可选的优先来源域名提示，用于提升来源相关性；不是唯一允许来源，也不替代人工确认。"}
+            },
+            "required": ["topic"]
+          }
+        },
+        "rag_retrieval_tool": {
+          "name": "rag_retrieval_tool",
+          "type": "rag_retrieval",
+          "description": "按需检索已入库知识库，完整执行查询改写、向量召回、BM25、RRF 与精排；不自动注入每轮上下文。",
+          "enabled": true,
+          "vectorTopK": 12,
+          "keywordTopK": 12,
+          "rerankTopK": 5,
+          "queryRewrite": true,
+          "rerank": true,
+          "params": {
+            "type": "object",
+            "properties": {
+              "query": {"type": "string", "minLength": 1, "maxLength": 1200},
+              "knowledgeTag": {"type": "string", "maxLength": 128},
+              "topK": {"type": "integer", "minimum": 1, "maximum": 8}
+            },
+            "required": ["query"],
+            "additionalProperties": false
+          }
+        },
+        "report_tool": {
+          "name": "report_tool",
+          "type": "rich_report",
+          "description": "基于当前 Run 中已经生成且可访问的文本 Artifact 生成正式交付报告。若当前任务已完成 DeepSearch，可直接调用本工具，运行时会受控选择本次研究材料；需要精确指定材料时才传 inputArtifactIds，不要把文件全文直接放进参数。支持 markdown、html 和 ppt 三种输出，其中 ppt 生成可预览的 HTML Slides，而不是 .pptx。报告生成后会返回正式 Artifact ID、摘要与材料限制，可据此继续回答或提示用户预览下载。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/rich-tools/report/stream",
+          "params": {
+            "type": "object",
+            "properties": {
+              "task": {"type": "string", "minLength": 1, "maxLength": 1200, "description": "报告需要完成的目标、结构、面向对象或重点；不要把输入文件全文写入此处。"},
+              "inputArtifactIds": {"type": "array", "minItems": 1, "maxItems": 12, "items": {"type": "string"}, "description": "可选：精确指定当前 Run 已生成、可访问的 Markdown、TXT、HTML 或 CSV Artifact ID；缺省时自动使用本次 DeepSearch 研究材料。"},
+              "outputFileName": {"type": "string", "maxLength": 160, "description": "输出文件名；服务会依据输出类型规范化扩展名，省略时默认 report。"},
+              "outputType": {"type": "string", "enum": ["markdown", "html", "ppt"], "description": "markdown、网页 HTML 或 HTML Slides；ppt 不是 .pptx 文件。"}
+            },
+            "required": ["task", "outputType"]
+          }
+        },
+        "directory_list": {
+          "name": "directory_list",
+          "type": "python",
+          "description": "查看工作区目录与文件结构。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "maxDepth": {
+                "type": "integer"
+              },
+              "includeHidden": {
+                "type": "boolean"
+              }
+            }
+          }
+        },
+        "file_search": {
+          "name": "file_search",
+          "type": "python",
+          "description": "按关键词搜索工作区文件内容。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "query": {
+                "type": "string"
+              },
+              "path": {
+                "type": "string"
+              },
+              "limit": {
+                "type": "integer"
+              },
+              "glob": {
+                "type": "string"
+              }
+            },
+            "required": ["query"]
+          }
+        },
+        "file_read": {
+          "name": "file_read",
+          "type": "python",
+          "description": "读取工作区内的本地文本文件内容。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              }
+            },
+            "required": ["path"]
+          }
+        },
+        "file_write": {
+          "name": "file_write",
+          "type": "python",
+          "description": "在工作区内写入本地文本文件。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "path": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "mode": {
+                "type": "string",
+                "enum": ["overwrite", "append"]
+              }
+            },
+            "required": ["path", "content"]
+          }
+        },
+        "json_extract": {
+          "name": "json_extract",
+          "type": "python",
+          "description": "从 JSON 文本中抽取指定字段。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "content": {
+                "type": "string"
+              },
+              "fields": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            },
+            "required": ["content", "fields"]
+          }
+        },
+        "artifact_save": {
+          "name": "artifact_save",
+          "type": "python",
+          "description": "保存结构化产物并返回可追踪引用。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string"
+              },
+              "artifactType": {
+                "type": "string"
+              }
+            },
+            "required": ["name", "content"]
+          }
+        },
+        "artifact_read": {
+          "name": "artifact_read",
+          "type": "artifact_read",
+          "description": "按 Artifact ID 按需读取已保存产物的内容与元信息。只在确需分析正文时使用；生成正式报告时应直接把已有 Artifact ID 传给 report_tool，不要先读取全文。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "artifactId": {
+                "type": "string"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "limit": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 5000
+              }
+            },
+            "required": ["artifactId"],
+            "additionalProperties": false
+          }
+        },
+        "skill_script_runner": {
+          "name": "skill_script_runner",
+          "type": "python",
+          "description": "执行 skill 包中声明的受控脚本 action。",
+          "enabled": true,
+          "pythonService": "http://localhost:18081",
+          "pythonEndpoint": "/api/v1/tools/execute",
+          "params": {
+            "type": "object",
+            "properties": {
+              "skillBasePath": {
+                "type": "string"
+              },
+              "scriptPath": {
+                "type": "string"
+              },
+              "runtime": {
+                "type": "string"
+              },
+              "arguments": {
+                "type": "object"
+              },
+              "timeoutSeconds": {
+                "type": "integer"
+              }
+            },
+            "required": ["skillBasePath", "scriptPath", "runtime"]
+          }
+        }
+      }
+    defaults: >-
+      {
+        "enabledTools": [
+          "web_search",
+          "web_fetch",
+          "deep_search_tool",
+          "rag_retrieval_tool",
+          "report_tool",
+          "directory_list",
+          "file_search",
+          "file_read",
+          "file_write",
+          "json_extract",
+          "artifact_save",
+          "artifact_read",
+          "skill_script_runner"
+        ]
+      }
+  skill:
+    runtime: >-
+      {
+        "enabled": true,
+        "directories": [
+          "runtime/skills"
+        ],
+        "reactEnabled": true,
+        "workflowEnabled": false,
+        "maxReadChars": 16000,
+        "maxListEntries": 20,
+        "maxSearchMatches": 20,
+        "maxExecutionSteps": 3,
+        "defaultScriptTimeoutSeconds": 30,
+        "maxScriptTimeoutSeconds": 120,
+        "allowedScriptRuntimes": ["python", "node", "shell", "powershell", "bat"],
+        "compatibilityCheckEnabled": true,
+        "allowFullContentRead": true,
+        "scriptActionsEnabled": true,
+        "masterStyleToolsEnabled": true,
+        "legacySkillExecuteToolEnabled": false
+      }
+  agent:
+    react:
+      model: default-chat
+      max-step: 6
+      temperature: 0.2
+    summary:
+      model: default-chat
+      temperature: 0.2
+      prompt: |-
+        请基于以下内容输出最终中文总结。
+        任务：{{task}}
+        用户问题：{{query}}
+        ReAct结果：{{react_result}}
+        执行轨迹：{{react_trace}}
+        工具观察：{{tool_observation}}

@@ -1,0 +1,7 @@
+标题：自旋锁竞争常见日志片段
+一、现象关键词
+高 CPU、线程状态大多为 RUNNABLE、调用栈反复落在 Unsafe.park 之前的 CAS 重试或 ReentrantLock 竞争路径。
+二、与死锁区别
+自旋锁竞争通常不是所有线程都永久等待同一把锁，而是不断重试抢锁，CPU 占用反而会更高。
+三、定位建议
+如果查询里出现 hot threads、spin、CAS、lock cmpxchg 等词，往往需要优先命中 CPU 热线程和自旋竞争相关知识，而不是只看 blocked 线程。

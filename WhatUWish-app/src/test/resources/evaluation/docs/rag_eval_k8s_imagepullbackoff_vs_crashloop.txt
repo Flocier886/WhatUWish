@@ -1,0 +1,10 @@
+标题：ImagePullBackOff 与 CrashLoopBackOff 的区别
+
+一、ImagePullBackOff
+镜像拉取失败通常与镜像地址、仓库认证、网络连通性或镜像不存在有关，应用容器本身可能还没真正启动。
+
+二、CrashLoopBackOff
+CrashLoopBackOff 说明容器已启动但不断异常退出，更偏应用层问题。
+
+三、排查入口
+前者先看拉镜像事件和仓库权限，后者先看应用日志和退出码。

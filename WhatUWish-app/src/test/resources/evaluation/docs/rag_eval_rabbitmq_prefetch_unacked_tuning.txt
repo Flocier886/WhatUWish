@@ -1,0 +1,7 @@
+标题：prefetch 配置与 unacked 堆积
+一、prefetch 的作用
+prefetch 决定消费者一次最多提前领取多少条未确认消息，设置过大时容易看到 unacked 长时间居高。
+二、与 ready 堆积区别
+ready 高说明消息还没被消费者取走，unacked 高则说明已经投递出去但迟迟未 ack。
+三、适合作为干扰项
+当 query 同时出现 prefetch、unacked、consumer 慢处理时，容易和重试风暴、普通 backlog 混在一起。

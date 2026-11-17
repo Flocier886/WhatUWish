@@ -1,0 +1,74 @@
+.layout {
+  width: 100%;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(150px, 210px) minmax(0, 1fr);
+  gap: 28px;
+  align-items: start;
+}
+
+.document { min-width: 0; }
+
+.toc {
+  position: sticky;
+  top: 0;
+  max-height: calc(100vh - 180px);
+  overflow: auto;
+  border-right: 1px solid #e2e4e7;
+}
+
+.tocToggle {
+  display: none;
+  width: 100%;
+  min-height: 40px;
+  padding: 0 12px;
+  border: 0;
+  color: #4d535b;
+  background: transparent;
+  font-size: 13px;
+  font-weight: 650;
+  letter-spacing: 0;
+  text-align: left;
+}
+
+.tocNav { display: grid; gap: 2px; padding-right: 14px; }
+
+.tocItem {
+  width: 100%;
+  min-height: 32px;
+  padding-top: 6px;
+  padding-right: 8px;
+  padding-bottom: 6px;
+  border: 0;
+  border-radius: 4px;
+  color: #686e76;
+  background: transparent;
+  font-size: 12px;
+  line-height: 1.4;
+  letter-spacing: 0;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
+
+.tocItem:hover { color: #25282d; background: #f1f2f4; }
+.tocItemActive { color: #1f5791; background: #eaf1f8; font-weight: 650; }
+
+@media (max-width: 760px) {
+  .layout { display: block; }
+  .toc { position: static; max-height: none; margin-bottom: 20px; overflow: visible; border: 1px solid #dfe2e6; border-radius: 5px; }
+  .tocToggle { display: block; }
+  .tocNav { display: none; max-height: 220px; overflow-y: auto; padding: 0 8px 8px; }
+  .tocNavOpen { display: grid; }
+}
+
+@container (max-width: 660px) {
+  .layout { display: block; }
+  .toc { position: static; max-height: none; margin-bottom: 14px; overflow: visible; border: 1px solid #dfe2e6; border-radius: 5px; }
+  .tocToggle { display: block; }
+  .tocNav { display: none; max-height: 220px; overflow-y: auto; padding: 0 8px 8px; }
+  .tocNavOpen { display: grid; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tocItem { transition: none; }
+}

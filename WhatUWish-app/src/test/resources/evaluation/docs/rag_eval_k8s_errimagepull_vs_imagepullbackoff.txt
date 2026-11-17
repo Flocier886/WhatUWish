@@ -1,0 +1,7 @@
+标题：ErrImagePull 与 ImagePullBackOff 的区别
+一、ErrImagePull
+ErrImagePull 更像一次镜像拉取直接失败，常见于镜像名错误、仓库认证失败或网络不可达。
+二、ImagePullBackOff
+ImagePullBackOff 是 kubelet 对连续拉取失败后的退避状态，它更像结果状态，不等于新的根因。
+三、检索价值
+当 query 中直接出现 ErrImagePull、BackOff、pull access denied 这类词时，关键词能力通常更容易命中正确文档。

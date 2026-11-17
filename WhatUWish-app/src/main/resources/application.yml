@@ -1,0 +1,106 @@
+spring:
+  config:
+    name: WhatUWish-app
+  profiles:
+    active: dev
+  servlet:
+    multipart:
+      max-file-size: 32MB
+      max-request-size: 33MB
+
+conversation:
+  code-execution:
+    enabled: ${AI_AGENT_CODE_EXECUTION_TOOL_ENABLED:false}
+  desktop-control:
+    enabled: ${AI_AGENT_DESKTOP_CONTROL_ENABLED:false}
+  code-interpreter:
+    enabled: ${AI_AGENT_CODE_INTERPRETER_TOOL_ENABLED:false}
+
+  material:
+    enabled: ${AI_AGENT_MATERIAL_ENABLED:true}
+    python-service: ${AI_AGENT_MATERIAL_PYTHON_SERVICE:http://localhost:18081}
+    # Java 开发私密配置与 Python 私密配置须填写相同令牌；环境变量可用于部署覆盖。
+    bridge-token: ${AI_AGENT_MATERIAL_BRIDGE_TOKEN:}
+    timeout-seconds: ${AI_AGENT_MATERIAL_TIMEOUT_SECONDS:180}
+  python-tool:
+    # 普通搜索会按配置顺序尝试多个来源，整个 Java 请求需覆盖其失败切换时间。
+    web-search-timeout-seconds: ${AI_AGENT_WEB_SEARCH_TOOL_TIMEOUT_SECONDS:120}
+  files:
+    session-lifetime-days: ${AI_AGENT_FILE_SESSION_LIFETIME_DAYS:30}
+    max-file-bytes: ${AI_AGENT_FILE_MAX_BYTES:33554432}
+    max-files-per-session: ${AI_AGENT_FILE_MAX_PER_SESSION:50}
+    max-concurrent-uploads: ${AI_AGENT_FILE_MAX_CONCURRENT_UPLOADS:4}
+    workspace-root: ${AI_AGENT_FILE_WORKSPACE_ROOT:data/run-workspaces}
+    workspace-cleanup-interval-ms: ${AI_AGENT_FILE_WORKSPACE_CLEANUP_INTERVAL_MS:86400000}
+    workspace-max-file-bytes: ${AI_AGENT_FILE_WORKSPACE_MAX_FILE_BYTES:33554432}
+    workspace-max-total-bytes: ${AI_AGENT_FILE_WORKSPACE_MAX_TOTAL_BYTES:134217728}
+    workspace-max-files: ${AI_AGENT_FILE_WORKSPACE_MAX_FILES:100}
+
+# 仅当白名单程序在当前 Java Backend 的 PATH 中可用时，host_cli 才会加入会话工具集合。
+reactor:
+  host-cli:
+    enabled: ${AI_AGENT_HOST_CLI_ENABLED:true}
+    allow:
+      - twitter
+      - rdt
+    default-timeout-ms: ${AI_AGENT_HOST_CLI_DEFAULT_TIMEOUT_MS:120000}
+    max-timeout-ms: ${AI_AGENT_HOST_CLI_MAX_TIMEOUT_MS:300000}
+    max-output-chars: ${AI_AGENT_HOST_CLI_MAX_OUTPUT_CHARS:200000}
+  opencli:
+    enabled: ${AI_AGENT_OPENCLI_ENABLED:false}
+    command: ${AI_AGENT_OPENCLI_COMMAND:opencli}
+    prefix-args: []
+    extra-args: [-f, json]
+    default-timeout-ms: 180000
+    max-timeout-ms: 540000
+    max-output-chars: 200000
+    cache-dir: ${AI_AGENT_OPENCLI_CACHE_DIR:}
+    relay-url: ${AI_AGENT_OPENCLI_RELAY_URL:}
+  browser-relay:
+    enabled: ${AI_AGENT_BROWSER_RELAY_ENABLED:false}
+    path: /api/v1/browser/relay
+    pairing-ttl-seconds: 300
+    rpc-timeout-seconds: 60
+    internal-rpc-secret: ${ADAPTER_HOST_SECRET:}
+    local-owner-id: ${AI_AGENT_LOCAL_BROWSER_OWNER:local-developer}
+  agent-browser:
+    enabled: ${AI_AGENT_BROWSER_ENABLED:false}
+    api-key: ${KERNEL_API_KEY:}
+    base-url: https://api.onkernel.com
+    timeout-seconds: 259200
+    browser-name-prefix: rb
+    profile-name: agent
+    profile-save-changes: false
+
+# 沿用 master 的默认复盘预算；部署独立审计表后才可建立执行记录。
+memory:
+  skill-review:
+    enabled: ${MEMORY_SKILL_REVIEW_ENABLED:true}
+    nudge-interval: 5
+    max-steps: 6
+    timeout-seconds: 90
+
+# Java 与 Python Tool Runtime 共享的 Artifact 根目录；生产可用 AI_AGENT_ARTIFACT_STORAGE_DIR 覆盖。
+# 此配置只由 LocalArtifactContentStore 使用，绝不下发给前端。
+artifact:
+  content:
+    local-root: ${AI_AGENT_ARTIFACT_STORAGE_DIR:}
+    # 工作台上传与 Python Artifact Storage 必须选择同一正式后端；密钥仍仅由各后端配置持有。
+    write-storage-type: ${AI_AGENT_ARTIFACT_STORAGE_TYPE:local_artifact_storage}
+    write-prefix: ${AI_AGENT_ARTIFACT_WRITE_PREFIX:${AI_AGENT_ARTIFACT_S3_PREFIX:}}
+    s3:
+      enabled: ${AI_AGENT_ARTIFACT_S3_ENABLED:false}
+      endpoint: ${AI_AGENT_ARTIFACT_S3_ENDPOINT:}
+      bucket: ${AI_AGENT_ARTIFACT_S3_BUCKET:}
+      region: ${AI_AGENT_ARTIFACT_S3_REGION:us-east-1}
+      path-style: ${AI_AGENT_ARTIFACT_S3_PATH_STYLE:true}
+      access-key: ${AI_AGENT_ARTIFACT_S3_ACCESS_KEY:}
+      secret-key: ${AI_AGENT_ARTIFACT_S3_SECRET_KEY:}
+      prefix: ${AI_AGENT_ARTIFACT_S3_PREFIX:}
+      connect-timeout-seconds: ${AI_AGENT_ARTIFACT_S3_CONNECT_TIMEOUT_SECONDS:5}
+      read-timeout-seconds: ${AI_AGENT_ARTIFACT_S3_READ_TIMEOUT_SECONDS:30}
+  migration:
+    enabled: ${AI_AGENT_ARTIFACT_MIGRATION_ENABLED:false}
+    action: ${AI_AGENT_ARTIFACT_MIGRATION_ACTION:dry-run}
+    artifact-id: ${AI_AGENT_ARTIFACT_MIGRATION_ARTIFACT_ID:}
+    limit: ${AI_AGENT_ARTIFACT_MIGRATION_LIMIT:1}

@@ -1,0 +1,30 @@
+-- 新库及已有库均可执行；仅新增独立审计表，不迁移现有记忆或 Skill 文件。
+-- 幂等建表不修补已经存在但结构不同的同名表，部署后须检查 SHOW CREATE TABLE。
+CREATE TABLE IF NOT EXISTS memory_skill_review_execution (
+    id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '数据库自增主键',
+    review_id VARCHAR(64) NOT NULL COMMENT '后台复盘唯一标识',
+    session_id VARCHAR(128) NOT NULL COMMENT '来源主会话标识',
+    trigger_request_id VARCHAR(128) DEFAULT NULL COMMENT '触发复盘的主请求标识',
+    trigger_run_id VARCHAR(128) DEFAULT NULL COMMENT '触发复盘的主运行标识',
+    fork_request_id VARCHAR(128) NOT NULL COMMENT '后台复盘独立请求标识',
+    status VARCHAR(16) NOT NULL COMMENT '执行状态RUNNING成功SUCCESS失败FAILED跳过SKIPPED超时TIMEOUT',
+    skip_reason VARCHAR(128) DEFAULT NULL COMMENT '同会话运行中或执行资源饱和等跳过原因',
+    success_turn_count INT NOT NULL DEFAULT 0 COMMENT '本进程内会话有效成功轮数',
+    snapshot_message_count INT NOT NULL DEFAULT 0 COMMENT '触发时ReAct快照消息数不含后置摘要',
+    max_steps INT NOT NULL COMMENT '复盘最大决策步数',
+    timeout_seconds INT NOT NULL COMMENT '复盘超时预算秒数',
+    duration_ms BIGINT NOT NULL DEFAULT 0 COMMENT '复盘实际耗时毫秒数',
+    changed_file_count INT NOT NULL DEFAULT 0 COMMENT '实际变更不同文件总数不含相同内容重写',
+    changed_files_json JSON DEFAULT NULL COMMENT '最多一百条包名包内路径及变更类型不含正文',
+    refresh_status VARCHAR(16) DEFAULT NULL COMMENT '注册刷新状态NOT_NEEDED或SUCCESS或INVALID或FAILED',
+    validation_summary VARCHAR(2000) DEFAULT NULL COMMENT '变更包注册核验摘要',
+    error_code VARCHAR(64) DEFAULT NULL COMMENT '受控错误分类',
+    error_message VARCHAR(2000) DEFAULT NULL COMMENT '限长错误说明不含完整模型响应',
+    create_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) COMMENT '记录创建时间',
+    update_time DATETIME(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3) ON UPDATE CURRENT_TIMESTAMP(3) COMMENT '记录最后更新时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_review_id (review_id),
+    KEY idx_session_id (session_id, id),
+    KEY idx_trigger_run (trigger_run_id),
+    KEY idx_status_id (status, id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='后台记忆Skill复盘执行记录独立于主Ledger';

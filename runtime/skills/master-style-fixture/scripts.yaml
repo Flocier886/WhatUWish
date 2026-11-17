@@ -1,0 +1,5 @@
+scripts:
+  summarize:
+    path: scripts/summarize.py
+    runtime: python
+    description: Summarize a small text input and return a structured JSON result.

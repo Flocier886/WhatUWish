@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IDeepSearchExecutionDao">
+    <resultMap id="DeepSearchExecutionMap" type="com.flocier.infrastructure.dao.po.DeepSearchExecutionPO">
+        <id column="id" property="id"/>
+        <result column="deep_search_execution_id" property="deepSearchExecutionId"/>
+        <result column="tool_invocation_id" property="toolInvocationId"/>
+        <result column="python_execution_id" property="pythonExecutionId"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="query_text" property="queryText"/>
+        <result column="research_mode" property="researchMode"/>
+        <result column="status" property="status"/>
+        <result column="final_summary" property="finalSummary"/>
+        <result column="report_artifact_id" property="reportArtifactId"/>
+        <result column="error_code" property="errorCode"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="last_sequence_no" property="lastSequenceNo"/>
+        <result column="last_upstream_event_id" property="lastUpstreamEventId"/>
+        <result column="schema_version" property="schemaVersion"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+        <result column="version_no" property="versionNo"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.DeepSearchExecutionPO">
+        INSERT INTO deep_search_execution (
+            deep_search_execution_id,
+            tool_invocation_id,
+            python_execution_id,
+            run_id,
+            session_id,
+            request_id,
+            query_text,
+            research_mode,
+            status,
+            final_summary,
+            report_artifact_id,
+            error_code,
+            error_message,
+            last_sequence_no,
+            last_upstream_event_id,
+            schema_version,
+            started_at,
+            finished_at,
+            version_no,
+            create_time,
+            update_time
+        ) VALUES (
+            #{deepSearchExecutionId},
+            #{toolInvocationId},
+            #{pythonExecutionId},
+            #{runId},
+            #{sessionId},
+            #{requestId},
+            #{queryText},
+            #{researchMode},
+            #{status},
+            #{finalSummary},
+            #{reportArtifactId},
+            #{errorCode},
+            #{errorMessage},
+            #{lastSequenceNo},
+            #{lastUpstreamEventId},
+            #{schemaVersion},
+            #{startedAt},
+            #{finishedAt},
+            #{versionNo},
+            #{createTime},
+            #{updateTime}
+        )
+    </insert>
+
+    <update id="update" parameterType="com.flocier.infrastructure.dao.po.DeepSearchExecutionPO">
+        UPDATE deep_search_execution
+        SET python_execution_id = #{pythonExecutionId},
+            status = #{status},
+            final_summary = #{finalSummary},
+            report_artifact_id = #{reportArtifactId},
+            error_code = #{errorCode},
+            error_message = #{errorMessage},
+            last_sequence_no = #{lastSequenceNo},
+            last_upstream_event_id = #{lastUpstreamEventId},
+            schema_version = #{schemaVersion},
+            finished_at = #{finishedAt},
+            version_no = #{versionNo},
+            update_time = #{updateTime}
+        WHERE tool_invocation_id = #{toolInvocationId}
+          AND version_no = #{versionNo} - 1
+    </update>
+
+    <select id="queryByToolInvocationId" resultMap="DeepSearchExecutionMap">
+        SELECT *
+        FROM deep_search_execution
+        WHERE tool_invocation_id = #{toolInvocationId}
+    </select>
+</mapper>

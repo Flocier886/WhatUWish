@@ -1,0 +1,157 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IArtifactLedgerDao">
+
+    <resultMap id="ArtifactLedgerMap" type="com.flocier.infrastructure.dao.po.ArtifactLedgerPO">
+        <id column="id" property="id"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="trace_id" property="traceId"/>
+        <result column="tool_invocation_id" property="toolInvocationId"/>
+        <result column="tool_call_id" property="toolCallId"/>
+        <result column="artifact_role" property="artifactRole"/>
+        <result column="visibility" property="visibility"/>
+        <result column="source_type" property="sourceType"/>
+        <result column="source_id" property="sourceId"/>
+        <result column="source_name" property="sourceName"/>
+        <result column="artifact_type" property="artifactType"/>
+        <result column="artifact_name" property="artifactName"/>
+        <result column="file_name" property="fileName"/>
+        <result column="storage_type" property="storageType"/>
+        <result column="storage_ref" property="storageRef"/>
+        <result column="storage_key" property="storageKey"/>
+        <result column="download_url" property="downloadUrl"/>
+        <result column="preview_url" property="previewUrl"/>
+        <result column="content_summary" property="contentSummary"/>
+        <result column="mime_type" property="mimeType"/>
+        <result column="size" property="size"/>
+        <result column="file_size" property="fileSize"/>
+        <result column="file_hash" property="fileHash"/>
+        <result column="metadata_json" property="metadataJson"/>
+        <result column="deleted" property="deleted"/>
+        <result column="deleted_at" property="deletedAt"/>
+        <result column="idempotency_key" property="idempotencyKey"/>
+        <result column="ext_json" property="extJson"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.ArtifactLedgerPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO artifact_ledger (
+            artifact_id, run_id, session_id, request_id, trace_id,
+            tool_invocation_id, tool_call_id, artifact_role, visibility,
+            source_type, source_id, source_name,
+            artifact_type, artifact_name, file_name,
+            storage_type, storage_ref, storage_key, download_url, preview_url,
+            content_summary, mime_type, size, file_size, file_hash, metadata_json, deleted, deleted_at,
+            idempotency_key, ext_json, create_time, update_time
+        ) VALUES (
+            #{artifactId}, #{runId}, #{sessionId}, #{requestId}, #{traceId},
+            #{toolInvocationId}, #{toolCallId}, #{artifactRole}, #{visibility},
+            #{sourceType}, #{sourceId}, #{sourceName},
+            #{artifactType}, #{artifactName}, #{fileName},
+            #{storageType}, #{storageRef}, #{storageKey}, #{downloadUrl}, #{previewUrl},
+            #{contentSummary}, #{mimeType}, #{size}, #{fileSize}, #{fileHash}, #{metadataJson}, #{deleted}, #{deletedAt},
+            #{idempotencyKey}, #{extJson}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <select id="queryByIdempotencyKey" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+    <select id="queryByArtifactId" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger WHERE artifact_id = #{artifactId} LIMIT 1
+    </select>
+
+    <select id="queryMigrationCandidates" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE storage_type = 'local_artifact_storage'
+          AND storage_key IS NOT NULL AND storage_key != ''
+          AND (deleted IS NULL OR deleted = 0)
+          AND LOWER(visibility) = 'visible'
+          AND LOWER(artifact_role) = 'output'
+        ORDER BY create_time ASC, artifact_id ASC
+        LIMIT #{limit}
+    </select>
+
+    <update id="updateStorageLocator">
+        UPDATE artifact_ledger
+        SET storage_type = #{newStorageType},
+            storage_key = #{newStorageKey},
+            storage_ref = #{newStorageRef},
+            update_time = NOW()
+        WHERE artifact_id = #{artifactId}
+          AND storage_type = #{expectedStorageType}
+          AND storage_key = #{expectedStorageKey}
+          AND (deleted IS NULL OR deleted = 0)
+    </update>
+
+    <select id="queryByRunId" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE run_id = #{runId}
+          AND (deleted IS NULL OR deleted = 0)
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="queryByRunIds" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE run_id IN
+        <foreach collection="runIds" item="runId" open="(" separator="," close=")">#{runId}</foreach>
+          AND (deleted IS NULL OR deleted = 0)
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC, artifact_id ASC
+    </select>
+
+    <select id="queryByRunIdsIncludingDeleted" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE run_id IN
+        <foreach collection="runIds" item="runId" open="(" separator="," close=")">#{runId}</foreach>
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC, artifact_id ASC
+    </select>
+
+    <select id="queryByTraceId" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE trace_id = #{traceId}
+          AND (deleted IS NULL OR deleted = 0)
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC LIMIT #{limit}
+    </select>
+
+    <select id="queryByToolInvocationId" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE tool_invocation_id = #{toolInvocationId}
+          AND (deleted IS NULL OR deleted = 0)
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="queryByRunIdAndToolCallId" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE run_id = #{runId}
+          AND tool_call_id = #{toolCallId}
+          AND (deleted IS NULL OR deleted = 0)
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC
+    </select>
+
+    <select id="queryByRequestIdAndToolCallId" resultMap="ArtifactLedgerMap">
+        SELECT * FROM artifact_ledger
+        WHERE request_id = #{requestId}
+          AND tool_call_id = #{toolCallId}
+          AND (deleted IS NULL OR deleted = 0)
+          AND (artifact_type IS NULL OR LOWER(artifact_type) NOT IN ('llm_response', 'tool_result'))
+          AND (storage_type IS NULL OR LOWER(storage_type) != 'inline_summary')
+        ORDER BY create_time ASC
+    </select>
+</mapper>

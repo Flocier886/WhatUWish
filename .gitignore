@@ -1,0 +1,101 @@
+target/
+!.mvn/wrapper/maven-wrapper.jar
+!**/src/main/**/target/
+!**/src/test/**/target/
+.kotlin
+
+### IntelliJ IDEA ###
+.idea/modules.xml
+.idea/jarRepositories.xml
+.idea/compiler.xml
+.idea/libraries/
+*.iws
+*.iml
+*.ipr
+
+### Eclipse ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+build/
+!**/src/main/**/build/
+!**/src/test/**/build/
+
+### VS Code ###
+.vscode/
+
+### Mac OS ###
+.DS_Store
+.idea/
+
+### Python ###
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+
+### Logs and local data ###
+*.log
+.env*
+WhatUWish-tools-python/config/application.local.yaml
+WhatUWish-app/config/application.local.yml
+WhatUWish-app/src/main/resources/application-dev.yml
+WhatUWish-app/src/main/resources/application-prod.yml
+WhatUWish-app/src/test/java/com/flocier/test/spring/ai/FlowAgentMCPTest.java
+WhatUWish-app/src/test/java/com/flocier/test/spring/ai/AiSearchMCPTest.java
+WhatUWish-app/src/test/java/com/flocier/test/spring/ai/AiClientTokenTest.java
+WhatUWish-tools-python/autobots.db*
+WhatUWish-tools-python/logs/
+WhatUWish-tools-python/tmp/
+.m2/
+.m2-temp/
+/data/
+WhatUWish-app/data/
+runtime/skills/**/output/
+
+### Frontend ###
+/frontend/node_modules/
+/frontend/dist/
+/frontend/coverage/
+/frontend/playwright-report/
+/frontend/test-results/
+
+# Local development records
+/docs/**/*.md
+/openspec/
+/specs/
+/.agents/
+/.codex/
+/.specify/
+
+# Bundled OpenCLI sources: keep build inputs, exclude local state and generated output
+/.local-opencli/**/node_modules/
+/.local-opencli/**/dist/
+/.local-opencli/adapter-host/.github/
+/.local-opencli/adapter-host/autoresearch/
+/.local-opencli/adapter-host/cases/
+/.local-opencli/adapter-host/designs/
+/.local-opencli/adapter-host/docs/
+/.local-opencli/adapter-host/tests/
+/.local-opencli/**/__fixtures__/
+/.local-opencli/adapter-host/cli-manifest.json
+/.local-opencli/adapter-host/screenshot-smoke.png
+/.local-opencli/adapter-host/CHANGELOG.md
+/.local-opencli/adapter-host/CONTRIBUTING.md
+/.local-opencli/adapter-host/PRIVACY.md
+/.local-opencli/adapter-host/TESTING.md
+/.local-opencli/adapter-host/llms.txt
+/.local-opencli/browser-extension/store-assets/
+/.local-opencli/**/*.test.*

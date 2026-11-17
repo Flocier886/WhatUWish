@@ -1,0 +1,10 @@
+标题：MCP 中 Streamable HTTP 的适用场景
+
+一、定位
+Streamable HTTP 适合服务化工具接入，强调标准 HTTP 通信、部署灵活和跨网络环境兼容。
+
+二、与 SSE 的关系
+SSE 更强调服务端流式推送结果；Streamable HTTP 更适合常规 HTTP 语义下的交互封装与网关接入。
+
+三、选择建议
+如果需要统一鉴权、代理转发、云环境部署或便于平台治理，Streamable HTTP 往往比 Stdio 更合适。

@@ -1,0 +1,42 @@
+skillId: community-script-fixture
+name: community-script-fixture
+title: 社区脚本 Skill Fixture
+description: 用于验证声明式脚本 action、结构化输出、artifact 引用和失败恢复语义。
+scenario: 当需要验证脚本化 skill runtime 行为时使用。
+version: 1.0.0
+owner: local-fixture
+toolRequirements:
+  - skill_script_runner
+tags:
+  - fixture
+  - script
+  - community
+constraints:
+  - 仅用于本地测试。
+  - 不允许从用户输入直接指定脚本路径。
+promptTemplates:
+inputSchema: {"type":"object","properties":{"text":{"type":"string"},"artifact_name":{"type":"string"}}}
+outputSchema: {"type":"object","properties":{"summary":{"type":"string"},"artifactRefs":{"type":"array","items":{"type":"string"}}}}
+actions:
+  summarize:
+    type: script
+    runtime: python
+    path: scripts/summarize.py
+    description: 汇总输入文本并生成 markdown artifact。
+    timeoutSeconds: 10
+    artifactPolicy: optional
+    inputSchema: {"type":"object","properties":{"text":{"type":"string"},"artifact_name":{"type":"string"}},"required":["text"]}
+  dependency_gap:
+    type: script
+    runtime: python
+    path: scripts/dependency_gap.py
+    description: 模拟脚本依赖缺失。
+    timeoutSeconds: 10
+    artifactPolicy: none
+  timeout:
+    type: script
+    runtime: python
+    path: scripts/timeout.py
+    description: 模拟脚本超时。
+    timeoutSeconds: 1
+    artifactPolicy: none

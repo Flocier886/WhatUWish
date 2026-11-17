@@ -1,0 +1,43 @@
+# 复制为 application.local.yaml 后填写真实值。
+# application.local.yaml 已被 Git 忽略，绝不能提交密钥。
+
+# 须与 Java config/application.local.yml 的 conversation.material.bridge-token 完全一致。
+# material-bridge:
+#   token: "在这里填写两端共用的随机令牌"
+
+# Kernel Key 属于 Java 后端，写入 Java config/application.local.yml 的 reactor.agent-browser。
+
+web-search:
+  # 仅使用现有 Tavily 时：api-key: "在这里填写 Tavily API Key"
+  # 多源模式会覆盖默认单 Tavily 配置，按以下顺序逐个尝试普通搜索；
+  # DeepSearch 会并发聚合所有已列出的 Provider。只保留实际已开通的源。
+  # providers:
+  #   - provider: grok
+  #     api-base: https://api.x.ai/v1/chat/completions
+  #     model: grok-4
+  #     api-key: "在这里填写 xAI API Key（须开通 web_search）"
+  #   - provider: gpt
+  #     api-base: https://api.openai.com/v1/responses
+  #     model: gpt-4.1
+  #     api-key: "在这里填写 OpenAI API Key（须支持 Responses web_search_preview）"
+  #   - provider: exa
+  #     api-base: https://api.exa.ai/search
+  #     api-key: "在这里填写 Exa API Key"
+  #   - provider: tavily
+  #     api-base: https://api.tavily.com/search
+  #     api-key: "在这里填写 Tavily API Key"
+  #   - provider: brave
+  #     api-base: https://api.search.brave.com/res/v1/web/search
+  #     api-key: "在这里填写 Brave Search API Key"
+
+deepsearch-runtime:
+  # model: "在这里填写模型名"
+  # api-base: "在这里填写 OpenAI Compatible Base URL"
+  # api-key: "在这里填写模型 API Key"
+
+code-execution:
+  # enabled: true # Java 已开放 code_execution/bash 时，Python 也必须启用
+  # backend: e2b
+  # e2b-api-key: "在这里填写 E2B API Key"
+  # e2b-template: "构建后的 E2B 模板别名，未填写时使用 SDK 默认模板"
+  # e2b-allow-public-traffic: true # noVNC 直连需要；公开 URL 持有者可访问沙箱端口

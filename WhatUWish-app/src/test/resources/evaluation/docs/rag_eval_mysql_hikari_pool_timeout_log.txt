@@ -1,0 +1,7 @@
+标题：HikariPool 获取连接超时日志片段
+一、典型日志
+Connection is not available, request timed out after 30000ms，active connections 高、idle 很少或为 0。
+二、含义边界
+这类报错更像应用侧连接池拿不到可用连接，根因可能是数据库连接数不足、慢 SQL 占满连接、连接泄漏或池参数过小。
+三、检索特点
+日志片段里包含固定英文句子和毫秒数字时，关键词召回往往比纯向量语义匹配更稳定。

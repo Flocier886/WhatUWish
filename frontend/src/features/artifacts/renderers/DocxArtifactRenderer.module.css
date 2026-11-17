@@ -1,0 +1,8 @@
+.reader { min-width: 0; width: 100%; min-height: 180px; }
+.document { width: 100%; }
+.document :global(.docx-preview-wrapper) { background: transparent !important; padding: 0 !important; }
+.document :global(.docx-preview) { margin: 0 auto 16px !important; background: #fff !important; box-shadow: 0 1px 3px #0002, 0 0 0 1px #0001 !important; }
+.message { min-height: 180px; display: flex; align-items: center; justify-content: center; flex-direction: column; gap: 12px; color: #626a72; text-align: center; }
+.actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+.actions button, .actions a { display: inline-flex; align-items: center; gap: 6px; padding: 7px 10px; border: 1px solid #ccd2d8; border-radius: 5px; background: white; color: #263544; font-size: 12px; text-decoration: none; }
+@media (max-width: 640px) { .document :global(.docx-preview) { max-width: none; } }

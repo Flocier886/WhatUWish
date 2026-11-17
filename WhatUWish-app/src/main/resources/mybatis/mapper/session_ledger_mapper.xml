@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.ISessionLedgerDao">
+
+    <resultMap id="SessionLedgerMap" type="com.flocier.infrastructure.dao.po.SessionLedgerPO">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="tenant_id" property="tenantId"/>
+        <result column="user_id" property="userId"/>
+        <result column="agent_id" property="agentId"/>
+        <result column="title" property="title"/>
+        <result column="status" property="status"/>
+        <result column="latest_request_id" property="latestRequestId"/>
+        <result column="latest_query_text" property="latestQueryText"/>
+        <result column="latest_summary_text" property="latestSummaryText"/>
+        <result column="run_count" property="runCount"/>
+        <result column="finished_run_count" property="finishedRunCount"/>
+        <result column="failed_run_count" property="failedRunCount"/>
+        <result column="idempotency_key" property="idempotencyKey"/>
+        <result column="ext_json" property="extJson"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="last_active_at" property="lastActiveAt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.SessionLedgerPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO session_ledger (
+            session_id, tenant_id, user_id, agent_id, title, status,
+            latest_request_id, latest_query_text, latest_summary_text,
+            run_count, finished_run_count, failed_run_count,
+            idempotency_key, ext_json, started_at, last_active_at, create_time, update_time
+        ) VALUES (
+            #{sessionId}, #{tenantId}, #{userId}, #{agentId}, #{title}, #{status},
+            #{latestRequestId}, #{latestQueryText}, #{latestSummaryText},
+            #{runCount}, #{finishedRunCount}, #{failedRunCount},
+            #{idempotencyKey}, #{extJson}, #{startedAt}, #{lastActiveAt}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <update id="updateBySessionId" parameterType="com.flocier.infrastructure.dao.po.SessionLedgerPO">
+        UPDATE session_ledger SET
+            tenant_id = #{tenantId},
+            user_id = #{userId},
+            agent_id = #{agentId},
+            title = #{title},
+            status = #{status},
+            latest_request_id = #{latestRequestId},
+            latest_query_text = #{latestQueryText},
+            latest_summary_text = #{latestSummaryText},
+            run_count = #{runCount},
+            finished_run_count = #{finishedRunCount},
+            failed_run_count = #{failedRunCount},
+            idempotency_key = #{idempotencyKey},
+            ext_json = #{extJson},
+            started_at = #{startedAt},
+            last_active_at = #{lastActiveAt},
+            update_time = #{updateTime}
+        WHERE session_id = #{sessionId}
+    </update>
+
+    <select id="queryBySessionId" resultMap="SessionLedgerMap">
+        SELECT * FROM session_ledger WHERE session_id = #{sessionId}
+    </select>
+
+    <select id="queryByIdempotencyKey" resultMap="SessionLedgerMap">
+        SELECT * FROM session_ledger WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+    <select id="queryRecentActiveSessions" resultMap="SessionLedgerMap">
+        SELECT * FROM session_ledger
+        ORDER BY last_active_at DESC, update_time DESC
+        LIMIT #{limit}
+    </select>
+</mapper>

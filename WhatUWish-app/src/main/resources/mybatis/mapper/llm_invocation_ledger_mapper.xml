@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.ILlmInvocationLedgerDao">
+
+    <resultMap id="LlmInvocationLedgerMap" type="com.flocier.infrastructure.dao.po.LlmInvocationLedgerPO">
+        <id column="id" property="id"/>
+        <result column="llm_invocation_id" property="llmInvocationId"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="trace_id" property="traceId"/>
+        <result column="step_no" property="stepNo"/>
+        <result column="provider" property="provider"/>
+        <result column="model" property="model"/>
+        <result column="scene" property="scene"/>
+        <result column="prompt_template_id" property="promptTemplateId"/>
+        <result column="request_summary" property="requestSummary"/>
+        <result column="response_summary" property="responseSummary"/>
+        <result column="request_payload_json" property="requestPayloadJson"/>
+        <result column="response_payload_json" property="responsePayloadJson"/>
+        <result column="input_tokens" property="inputTokens"/>
+        <result column="output_tokens" property="outputTokens"/>
+        <result column="total_tokens" property="totalTokens"/>
+        <result column="latency_ms" property="latencyMs"/>
+        <result column="status" property="status"/>
+        <result column="artifact_ref" property="artifactRef"/>
+        <result column="idempotency_key" property="idempotencyKey"/>
+        <result column="ext_json" property="extJson"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.LlmInvocationLedgerPO" useGeneratedKeys="true" keyProperty="id">
+        INSERT INTO llm_invocation_ledger (
+            llm_invocation_id, run_id, session_id, request_id, trace_id, step_no,
+            provider, model, scene, prompt_template_id, request_summary, response_summary, request_payload_json, response_payload_json,
+            input_tokens, output_tokens, total_tokens, latency_ms, status, artifact_ref,
+            idempotency_key, ext_json, started_at, finished_at, create_time, update_time
+        ) VALUES (
+            #{llmInvocationId}, #{runId}, #{sessionId}, #{requestId}, #{traceId}, #{stepNo},
+            #{provider}, #{model}, #{scene}, #{promptTemplateId}, #{requestSummary}, #{responseSummary}, #{requestPayloadJson}, #{responsePayloadJson},
+            #{inputTokens}, #{outputTokens}, #{totalTokens}, #{latencyMs}, #{status}, #{artifactRef},
+            #{idempotencyKey}, #{extJson}, #{startedAt}, #{finishedAt}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <select id="queryByIdempotencyKey" resultMap="LlmInvocationLedgerMap">
+        SELECT * FROM llm_invocation_ledger WHERE idempotency_key = #{idempotencyKey}
+    </select>
+
+    <select id="queryByRunId" resultMap="LlmInvocationLedgerMap">
+        SELECT * FROM llm_invocation_ledger WHERE run_id = #{runId} ORDER BY started_at ASC, create_time ASC
+    </select>
+
+    <select id="queryByRunIds" resultMap="LlmInvocationLedgerMap">
+        SELECT * FROM llm_invocation_ledger WHERE run_id IN
+        <foreach collection="runIds" item="runId" open="(" separator="," close=")">#{runId}</foreach>
+        ORDER BY started_at ASC, create_time ASC, llm_invocation_id ASC
+    </select>
+
+    <select id="queryByTraceId" resultMap="LlmInvocationLedgerMap">
+        SELECT * FROM llm_invocation_ledger WHERE trace_id = #{traceId} ORDER BY started_at ASC, create_time ASC LIMIT #{limit}
+    </select>
+</mapper>

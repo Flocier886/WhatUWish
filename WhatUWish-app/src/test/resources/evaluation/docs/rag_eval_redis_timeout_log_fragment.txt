@@ -1,0 +1,7 @@
+标题：RedisCommandTimeoutException 日志片段
+一、典型日志
+io.lettuce.core.RedisCommandTimeoutException: Command timed out after 2 second(s)。
+二、可疑方向
+可能是网络波动、连接池争用、bigkey 操作、慢命令或客户端 timeout 配置过紧。
+三、适合作为测试文档
+日志片段短、关键词强、字面匹配明显，是检验关键词召回与 rerank 是否真的生效的好材料。

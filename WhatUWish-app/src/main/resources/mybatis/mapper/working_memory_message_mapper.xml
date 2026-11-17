@@ -1,0 +1,175 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IWorkingMemoryMessageDao">
+    <resultMap id="messageMap" type="com.flocier.domain.agent.runtime.memory.WorkingMemoryMessage">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="memory_scope" property="memoryScope"/>
+        <result column="turn_id" property="turnId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="origin_message_key" property="originMessageKey"/>
+        <result column="run_id" property="runId"/>
+        <result column="seq_no" property="seqNo"/>
+        <result column="role" property="role"/>
+        <result column="content" property="content"/>
+        <result column="reasoning_content" property="reasoningContent"/>
+        <result column="tool_call_id" property="toolCallId"/>
+        <result column="tool_calls_json" property="toolCallsJson"/>
+        <result column="base64_image" property="base64Image"/>
+        <result column="message_kind" property="messageKind"/>
+        <result column="visibility" property="visibility"/>
+        <result column="token_estimate" property="tokenEstimate"/>
+    </resultMap>
+    <!-- 按轮次和序号恢复模型消息，ASSISTANT 工具调用与 TOOL 结果均保留。 -->
+    <select id="selectByTurnIds" resultMap="messageMap">
+        SELECT * FROM ai_agent_working_memory_message
+        WHERE deleted = 0 AND turn_id IN
+        <foreach collection="turnIds" item="turnId" open="(" separator="," close=")">#{turnId}</foreach>
+        ORDER BY turn_id ASC, seq_no ASC
+    </select>
+    <select id="selectByTurnAndSeq" resultMap="messageMap">
+        SELECT * FROM ai_agent_working_memory_message
+        WHERE turn_id = #{turnId} AND seq_no = #{seqNo} AND deleted = 0 LIMIT 1
+    </select>
+    <insert id="insert" parameterType="com.flocier.domain.agent.runtime.memory.WorkingMemoryMessage">
+        INSERT INTO ai_agent_working_memory_message
+        (session_id, memory_scope, turn_id, request_id, origin_message_key, run_id, seq_no, role, content,
+         reasoning_content, tool_call_id, tool_calls_json, base64_image, message_kind, visibility, token_estimate)
+        VALUES (#{sessionId}, #{memoryScope}, #{turnId}, #{requestId}, #{originMessageKey}, #{runId}, #{seqNo},
+                #{role}, #{content}, #{reasoningContent}, #{toolCallId}, #{toolCallsJson}, #{base64Image},
+                #{messageKind}, #{visibility}, #{tokenEstimate})
+    </insert>
+
+    <resultMap id="searchMessageMap" type="com.flocier.domain.agent.runtime.memory.WorkingMemorySearchMessage">
+        <id column="id" property="id"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="turn_id" property="turnId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="origin_message_key" property="originMessageKey"/>
+        <result column="turn_seq" property="turnSeq"/>
+        <result column="seq_no" property="seqNo"/>
+        <result column="role" property="role"/>
+        <result column="content" property="content"/>
+        <result column="message_kind" property="messageKind"/>
+        <result column="turn_status" property="turnStatus"/>
+        <result column="search_score" property="searchScore"/>
+    </resultMap>
+
+    <sql id="searchColumns">
+        m.id, m.session_id, m.turn_id, m.request_id, m.origin_message_key,
+        t.turn_seq, m.seq_no, m.role, m.content, m.message_kind, t.status AS turn_status
+    </sql>
+    <sql id="searchBase">
+        FROM ai_agent_working_memory_message m
+        INNER JOIN ai_agent_working_memory_turn t ON t.id = m.turn_id AND t.deleted = 0
+        INNER JOIN session_ledger s ON s.session_id = m.session_id
+        WHERE m.memory_scope = 'main' AND m.deleted = 0
+          <if test="sessionId != null">AND m.session_id = #{sessionId}</if>
+    </sql>
+    <sql id="searchRoles">
+        AND m.role IN
+        <foreach collection="roles" item="role" open="(" separator="," close=")">#{role}</foreach>
+    </sql>
+    <sql id="hideCompactionSummaries">
+        AND LTRIM(COALESCE(m.content, '')) NOT LIKE '[CONTEXT COMPACTION%'
+        AND LTRIM(COALESCE(m.content, '')) NOT LIKE '[CONTEXT SUMMARY]:%'
+        AND LTRIM(COALESCE(m.content, '')) NOT LIKE '[COMPACTION SUMMARY]%'
+        AND LTRIM(COALESCE(m.content, '')) NOT LIKE '[WM_COMPACTION_SUMMARY]%'
+    </sql>
+
+    <!-- INVALID 只退出模型预装载，仍属于可检索的历史。 -->
+    <select id="searchFullText" resultMap="searchMessageMap">
+        SELECT <include refid="searchColumns"/>,
+               MATCH(m.content) AGAINST (#{query} IN NATURAL LANGUAGE MODE) AS search_score
+        <include refid="searchBase"/>
+        <include refid="searchRoles"/>
+        <include refid="hideCompactionSummaries"/>
+        AND MATCH(m.content) AGAINST (#{query} IN NATURAL LANGUAGE MODE)
+        ORDER BY search_score DESC, t.create_time DESC, t.turn_seq DESC, m.seq_no DESC, m.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="scanHistory" resultMap="searchMessageMap">
+        SELECT <include refid="searchColumns"/>
+        <include refid="searchBase"/>
+        <include refid="searchRoles"/>
+        <include refid="hideCompactionSummaries"/>
+        AND (m.content LIKE CONCAT('%', #{query}, '%')
+             OR CAST(m.tool_calls_json AS CHAR) LIKE CONCAT('%', #{query}, '%'))
+        ORDER BY t.create_time DESC, t.turn_seq DESC, m.seq_no DESC, m.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectScrollAnchor" resultMap="searchMessageMap">
+        SELECT <include refid="searchColumns"/>
+        <include refid="searchBase"/>
+        AND m.session_id = #{sessionId} AND m.id = #{messageId}
+        LIMIT 1
+    </select>
+
+    <select id="selectScrollBefore" resultMap="searchMessageMap">
+        SELECT <include refid="searchColumns"/>
+        <include refid="searchBase"/>
+        <include refid="searchRoles"/>
+        <include refid="hideCompactionSummaries"/>
+        AND m.session_id = #{sessionId}
+        AND EXISTS (SELECT 1 FROM ai_agent_working_memory_message anchor
+                    INNER JOIN ai_agent_working_memory_turn anchor_turn ON anchor_turn.id = anchor.turn_id
+                    WHERE anchor.id = #{messageId} AND anchor.session_id = #{sessionId}
+                      AND (t.turn_seq &lt; anchor_turn.turn_seq
+                           OR (t.turn_seq = anchor_turn.turn_seq AND m.seq_no &lt; anchor.seq_no)
+                           OR (t.turn_seq = anchor_turn.turn_seq AND m.seq_no = anchor.seq_no AND m.id &lt; anchor.id)))
+        ORDER BY t.turn_seq DESC, m.seq_no DESC, m.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectScrollAfter" resultMap="searchMessageMap">
+        SELECT <include refid="searchColumns"/>
+        <include refid="searchBase"/>
+        <include refid="searchRoles"/>
+        <include refid="hideCompactionSummaries"/>
+        AND m.session_id = #{sessionId}
+        AND EXISTS (SELECT 1 FROM ai_agent_working_memory_message anchor
+                    INNER JOIN ai_agent_working_memory_turn anchor_turn ON anchor_turn.id = anchor.turn_id
+                    WHERE anchor.id = #{messageId} AND anchor.session_id = #{sessionId}
+                      AND (t.turn_seq &gt; anchor_turn.turn_seq
+                           OR (t.turn_seq = anchor_turn.turn_seq AND m.seq_no &gt; anchor.seq_no)
+                           OR (t.turn_seq = anchor_turn.turn_seq AND m.seq_no = anchor.seq_no AND m.id &gt; anchor.id)))
+        ORDER BY t.turn_seq ASC, m.seq_no ASC, m.id ASC
+        LIMIT #{limit}
+    </select>
+
+    <!-- master-02 DAO 声明了本方法，但其 XML 没有映射；READ 必须覆盖所有状态。 -->
+    <select id="selectHistoryBySession" resultMap="searchMessageMap">
+        SELECT <include refid="searchColumns"/>
+        <include refid="searchBase"/>
+        AND m.session_id = #{sessionId}
+        ORDER BY t.turn_seq ASC, m.seq_no ASC, m.id ASC
+    </select>
+
+    <select id="selectRecentSessions" resultType="map">
+        SELECT s.session_id AS sessionId, s.title, s.latest_query_text AS latestQueryText,
+               s.latest_summary_text AS latestSummaryText, s.started_at AS startedAt,
+               s.last_active_at AS lastActiveAt,
+               (SELECT COUNT(*) FROM ai_agent_working_memory_message wm
+                INNER JOIN ai_agent_working_memory_turn wt ON wt.id = wm.turn_id AND wt.deleted = 0
+                WHERE wm.session_id = s.session_id AND wm.memory_scope = 'main' AND wm.deleted = 0) AS messageCount
+        FROM session_ledger s
+        WHERE EXISTS (SELECT 1 FROM ai_agent_working_memory_message wm
+                      INNER JOIN ai_agent_working_memory_turn wt ON wt.id = wm.turn_id AND wt.deleted = 0
+                      WHERE wm.session_id = s.session_id AND wm.memory_scope = 'main' AND wm.deleted = 0)
+        ORDER BY COALESCE(s.last_active_at, s.create_time) DESC, s.id DESC
+        LIMIT #{limit}
+    </select>
+
+    <select id="selectSessionSummary" resultType="map">
+        SELECT s.session_id AS sessionId, s.title, s.started_at AS startedAt,
+               s.last_active_at AS lastActiveAt
+        FROM session_ledger s
+        WHERE s.session_id = #{sessionId}
+          AND EXISTS (SELECT 1 FROM ai_agent_working_memory_message wm
+                      INNER JOIN ai_agent_working_memory_turn wt ON wt.id = wm.turn_id AND wt.deleted = 0
+                      WHERE wm.session_id = s.session_id AND wm.memory_scope = 'main' AND wm.deleted = 0)
+        LIMIT 1
+    </select>
+</mapper>

@@ -1,0 +1,7 @@
+标题：文件系统 freeze 与 journal flush 抖动
+一、freeze 现象
+文件系统 freeze 更像某段时间内写入完全停顿，业务线程大量卡在磁盘写路径或 fsync。
+二、journal flush
+journal flush 更常表现为周期性写延迟尖刺，不一定完全停住，但 tail latency 会明显变差。
+三、边界说明
+如果 query 同时包含 fsync、flush、jbd2、write stall 等词，需要区分是偶发刷盘抖动还是文件系统级冻结。

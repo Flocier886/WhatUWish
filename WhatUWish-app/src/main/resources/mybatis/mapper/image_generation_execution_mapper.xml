@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IImageGenerationExecutionDao">
+    <resultMap id="ImageGenerationExecutionMap" type="com.flocier.infrastructure.dao.po.ImageGenerationExecutionPO">
+        <id column="id" property="id"/>
+        <result column="image_generation_execution_id" property="imageGenerationExecutionId"/>
+        <result column="execution_source" property="executionSource"/>
+        <result column="tool_invocation_id" property="toolInvocationId"/>
+        <result column="python_execution_id" property="pythonExecutionId"/>
+        <result column="run_id" property="runId"/><result column="session_id" property="sessionId"/><result column="request_id" property="requestId"/>
+        <result column="generation_mode" property="generationMode"/><result column="requested_size" property="requestedSize"/>
+        <result column="requested_output_count" property="requestedOutputCount"/><result column="generated_output_count" property="generatedOutputCount"/>
+        <result column="reference_artifact_count" property="referenceArtifactCount"/><result column="mask_artifact_count" property="maskArtifactCount"/>
+        <result column="used_fallback" property="usedFallback"/><result column="status" property="status"/>
+        <result column="final_summary" property="finalSummary"/><result column="error_code" property="errorCode"/><result column="error_message" property="errorMessage"/>
+        <result column="started_at" property="startedAt"/><result column="finished_at" property="finishedAt"/><result column="version_no" property="versionNo"/>
+        <result column="create_time" property="createTime"/><result column="update_time" property="updateTime"/>
+    </resultMap>
+    <resultMap id="ImageGenerationExecutionInputArtifactMap" type="com.flocier.infrastructure.dao.po.ImageGenerationExecutionInputArtifactPO">
+        <id column="id" property="id"/><result column="image_generation_execution_id" property="imageGenerationExecutionId"/>
+        <result column="artifact_id" property="artifactId"/><result column="input_role" property="inputRole"/>
+        <result column="input_order" property="inputOrder"/><result column="create_time" property="createTime"/>
+    </resultMap>
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.ImageGenerationExecutionPO">
+        INSERT INTO image_generation_execution (
+            image_generation_execution_id, execution_source, tool_invocation_id, python_execution_id, run_id, session_id, request_id,
+            generation_mode, requested_size, requested_output_count, generated_output_count, reference_artifact_count,
+            mask_artifact_count, used_fallback, status, final_summary, error_code, error_message, started_at, finished_at,
+            version_no, create_time, update_time
+        ) VALUES (
+            #{imageGenerationExecutionId}, #{executionSource}, #{toolInvocationId}, #{pythonExecutionId}, #{runId}, #{sessionId}, #{requestId},
+            #{generationMode}, #{requestedSize}, #{requestedOutputCount}, #{generatedOutputCount}, #{referenceArtifactCount},
+            #{maskArtifactCount}, #{usedFallback}, #{status}, #{finalSummary}, #{errorCode}, #{errorMessage}, #{startedAt}, #{finishedAt},
+            #{versionNo}, #{createTime}, #{updateTime}
+        )
+    </insert>
+    <insert id="insertInputs" parameterType="java.util.List">
+        INSERT INTO image_generation_execution_input_artifact (
+            image_generation_execution_id, artifact_id, input_role, input_order, create_time
+        ) VALUES
+        <foreach collection="list" item="input" separator=",">
+            (#{input.imageGenerationExecutionId}, #{input.artifactId}, #{input.inputRole}, #{input.inputOrder}, #{input.createTime})
+        </foreach>
+    </insert>
+    <update id="update" parameterType="com.flocier.infrastructure.dao.po.ImageGenerationExecutionPO">
+        UPDATE image_generation_execution SET python_execution_id = #{pythonExecutionId}, generated_output_count = #{generatedOutputCount},
+            used_fallback = #{usedFallback}, status = #{status}, final_summary = #{finalSummary}, error_code = #{errorCode},
+            error_message = #{errorMessage}, finished_at = #{finishedAt}, version_no = #{versionNo}, update_time = #{updateTime}
+        WHERE image_generation_execution_id = #{imageGenerationExecutionId} AND version_no = #{versionNo} - 1
+    </update>
+    <select id="queryByToolInvocationId" resultMap="ImageGenerationExecutionMap">
+        SELECT * FROM image_generation_execution WHERE tool_invocation_id = #{toolInvocationId}
+    </select>
+    <select id="queryPageByExecutionSourceAndSession" resultMap="ImageGenerationExecutionMap">
+        SELECT * FROM image_generation_execution
+        WHERE execution_source = #{executionSource} AND session_id = #{sessionId}
+        ORDER BY started_at DESC, image_generation_execution_id DESC
+        LIMIT #{limit} OFFSET #{offset}
+    </select>
+    <select id="countByExecutionSourceAndSession" resultType="long">
+        SELECT COUNT(1) FROM image_generation_execution
+        WHERE execution_source = #{executionSource} AND session_id = #{sessionId}
+    </select>
+    <select id="queryInputsByImageGenerationExecutionId" resultMap="ImageGenerationExecutionInputArtifactMap">
+        SELECT * FROM image_generation_execution_input_artifact
+        WHERE image_generation_execution_id = #{imageGenerationExecutionId}
+        ORDER BY input_role ASC, input_order ASC
+    </select>
+</mapper>

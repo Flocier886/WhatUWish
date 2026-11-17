@@ -1,0 +1,11 @@
+target/
+build/
+.git/
+.idea/
+.vscode/
+*.log
+.env*
+data/
+../.m2/
+../.m2-temp/
+../WhatUWish-tools-python/app/__pycache__/

@@ -1,0 +1,7 @@
+标题：MCP 传输层常见配置键
+一、Stdio 场景
+更关注进程启动命令、标准输入输出读写、缓冲刷新与本地权限边界。
+二、SSE 与 Streamable HTTP 场景
+常见配置会涉及 connectTimeout、readTimeout、maxInFlight、keepAlive、baseUrl、headers 等参数。
+三、为什么适合做评测干扰项
+这些配置键与 transport 选型问题高度相关，但与“工具超时降级”并不完全相同，适合构造近义不同解的文档池。

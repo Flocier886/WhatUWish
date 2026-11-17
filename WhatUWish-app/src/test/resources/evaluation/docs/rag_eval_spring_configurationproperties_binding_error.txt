@@ -1,0 +1,7 @@
+标题：ConfigurationProperties 绑定失败日志片段
+一、典型现象
+Failed to bind properties under、Could not bind properties、type mismatch 这类日志通常指向配置键格式或类型不匹配。
+二、与启动慢区别
+这是明确的配置绑定失败，不应和外部依赖预热慢、Bean 初始化慢混为一谈。
+三、评测价值
+日志和配置键往往一起出现，适合构造需要关键词匹配支持的 Spring 检索样本。

@@ -1,0 +1,7 @@
+标题：BeanCurrentlyInCreationException 日志片段
+一、典型含义
+BeanCurrentlyInCreationException 多数指向循环依赖或初始化链路中出现互相引用。
+二、与启动慢的区别
+启动慢可能只是扫描多、外部依赖慢或首次预热重，而 BeanCurrentlyInCreationException 更偏向明确的创建失败。
+三、检索特点
+异常类名本身就是强关键词，适合验证 keyword 字段、BM25 和 rerank 的收益。

@@ -1,0 +1,7 @@
+标题：MCP HTTP 499 与调用超时日志片段
+一、499 的含义
+499 常表示客户端在服务端返回前主动断开连接，常见于上游超时、浏览器中断或网关提前取消。
+二、与服务端超时的区别
+如果是服务端主动超时，更常看到 504、read timeout、tool execution timeout 等表述，不一定会出现 499。
+三、检索价值
+当 query 中包含 499、cancelled、client closed request 这类字面词时，BM25 或 keyword 字段更容易精准命中。

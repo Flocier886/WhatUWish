@@ -1,0 +1,45 @@
+GET http://localhost:18081/api/v1/health
+
+###
+
+GET http://localhost:18081/api/v1/tools
+
+###
+
+POST http://localhost:18081/api/v1/tools/execute
+Content-Type: application/json
+
+{
+  "toolName": "file_read",
+  "arguments": {
+    "path": "README.md"
+  },
+  "context": {
+    "sessionId": "py-test-session",
+    "runId": "py-test-run",
+    "requestId": "py-test-request",
+    "toolCallId": "call-file-read-1",
+    "step": 1
+  }
+}
+
+###
+
+POST http://localhost:18081/api/v1/tools/execute
+Content-Type: application/json
+
+{
+  "toolName": "artifact_save",
+  "arguments": {
+    "name": "test-note.txt",
+    "content": "这是一次 python 工具手工测试",
+    "artifactType": "text"
+  },
+  "context": {
+    "sessionId": "py-test-session",
+    "runId": "py-test-run",
+    "requestId": "py-test-request",
+    "toolCallId": "call-artifact-save-1",
+    "step": 2
+  }
+}

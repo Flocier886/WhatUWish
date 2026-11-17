@@ -1,0 +1,11 @@
+{
+    "topic":  "ReAct Agent 中 tool observation 应该包含哪些信息",
+    "maxSearches":  1,
+    "maxIterations":  1,
+    "maxFetches":  2,
+    "researchDepth":  "quick",
+    "maxResultsPerSearch":  3,
+    "questions":  [
+                      "ReAct Agent 的 tool observation 应包含哪些能支持下一步决策的信息？"
+                  ]
+}

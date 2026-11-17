@@ -1,0 +1,7 @@
+标题：Lettuce commandTimeout 配置项与 Redis 超时
+一、关键配置
+spring.data.redis.timeout、commandTimeout、shutdownTimeout 等参数会直接影响客户端判定超时的阈值。
+二、与网络抖动区别
+即使底层网络没有明显丢包，若 commandTimeout 设置过小，也可能在大 key、阻塞命令或瞬时抖动时频繁超时。
+三、评测价值
+这类配置键文本非常离散，适合用来拉开 BM25 与纯向量召回的差距。

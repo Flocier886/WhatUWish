@@ -1,0 +1,8 @@
+.container { display: grid; gap: 8px; margin: 10px 0 12px; }
+.draft { overflow: hidden; border: 1px solid #dce6ef; border-radius: 12px; background: #fbfdff; }
+.draft header { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; padding: 9px 11px; border-bottom: 1px solid #e6edf3; color: #46657f; background: #f2f7fb; }
+.draft header span { font-size: 11px; font-weight: 680; }
+.draft header small { color: #8394a3; font-size: 9px; }
+.draft pre { max-height: 235px; margin: 0; padding: 11px; overflow: auto; color: #3f4b56; font: 11px/1.6 ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; white-space: pre-wrap; overflow-wrap: anywhere; }
+.draft p { margin: 0; padding: 8px 11px; border-top: 1px solid #e6edf3; color: #7c6e48; background: #fffdf4; font-size: 10px; line-height: 1.55; }
+@media (max-width: 480px) { .draft header { display: grid; gap: 2px; }.draft pre { max-height: 180px; } }

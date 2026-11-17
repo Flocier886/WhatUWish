@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.flocier.infrastructure.dao.IReportExecutionDao">
+    <resultMap id="ReportExecutionMap" type="com.flocier.infrastructure.dao.po.ReportExecutionPO">
+        <id column="id" property="id"/>
+        <result column="report_execution_id" property="reportExecutionId"/>
+        <result column="tool_invocation_id" property="toolInvocationId"/>
+        <result column="python_execution_id" property="pythonExecutionId"/>
+        <result column="run_id" property="runId"/>
+        <result column="session_id" property="sessionId"/>
+        <result column="request_id" property="requestId"/>
+        <result column="task_summary" property="taskSummary"/>
+        <result column="output_type" property="outputType"/>
+        <result column="output_file_name" property="outputFileName"/>
+        <result column="status" property="status"/>
+        <result column="input_artifact_count" property="inputArtifactCount"/>
+        <result column="output_artifact_id" property="outputArtifactId"/>
+        <result column="final_summary" property="finalSummary"/>
+        <result column="error_code" property="errorCode"/>
+        <result column="error_message" property="errorMessage"/>
+        <result column="started_at" property="startedAt"/>
+        <result column="finished_at" property="finishedAt"/>
+        <result column="version_no" property="versionNo"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <resultMap id="ReportExecutionInputArtifactMap" type="com.flocier.infrastructure.dao.po.ReportExecutionInputArtifactPO">
+        <id column="id" property="id"/>
+        <result column="report_execution_id" property="reportExecutionId"/>
+        <result column="artifact_id" property="artifactId"/>
+        <result column="input_order" property="inputOrder"/>
+        <result column="create_time" property="createTime"/>
+    </resultMap>
+
+    <insert id="insert" parameterType="com.flocier.infrastructure.dao.po.ReportExecutionPO">
+        INSERT INTO report_execution (
+            report_execution_id, tool_invocation_id, python_execution_id, run_id, session_id, request_id,
+            task_summary, output_type, output_file_name, status, input_artifact_count, output_artifact_id,
+            final_summary, error_code, error_message, started_at, finished_at, version_no, create_time, update_time
+        ) VALUES (
+            #{reportExecutionId}, #{toolInvocationId}, #{pythonExecutionId}, #{runId}, #{sessionId}, #{requestId},
+            #{taskSummary}, #{outputType}, #{outputFileName}, #{status}, #{inputArtifactCount}, #{outputArtifactId},
+            #{finalSummary}, #{errorCode}, #{errorMessage}, #{startedAt}, #{finishedAt}, #{versionNo}, #{createTime}, #{updateTime}
+        )
+    </insert>
+
+    <insert id="insertInputs" parameterType="java.util.List">
+        INSERT INTO report_execution_input_artifact (report_execution_id, artifact_id, input_order, create_time)
+        VALUES
+        <foreach collection="list" item="input" separator=",">
+            (#{input.reportExecutionId}, #{input.artifactId}, #{input.inputOrder}, #{input.createTime})
+        </foreach>
+    </insert>
+
+    <update id="update" parameterType="com.flocier.infrastructure.dao.po.ReportExecutionPO">
+        UPDATE report_execution
+        SET python_execution_id = #{pythonExecutionId},
+            status = #{status},
+            output_artifact_id = #{outputArtifactId},
+            final_summary = #{finalSummary},
+            error_code = #{errorCode},
+            error_message = #{errorMessage},
+            finished_at = #{finishedAt},
+            version_no = #{versionNo},
+            update_time = #{updateTime}
+        WHERE tool_invocation_id = #{toolInvocationId}
+          AND version_no = #{versionNo} - 1
+    </update>
+
+    <select id="queryByToolInvocationId" resultMap="ReportExecutionMap">
+        SELECT * FROM report_execution WHERE tool_invocation_id = #{toolInvocationId}
+    </select>
+
+    <select id="queryInputsByReportExecutionId" resultMap="ReportExecutionInputArtifactMap">
+        SELECT * FROM report_execution_input_artifact
+        WHERE report_execution_id = #{reportExecutionId}
+        ORDER BY input_order ASC
+    </select>
+</mapper>

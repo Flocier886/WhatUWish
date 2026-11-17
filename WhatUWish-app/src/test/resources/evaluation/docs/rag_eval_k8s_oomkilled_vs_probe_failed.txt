@@ -1,0 +1,10 @@
+标题：OOMKilled 与 Probe Failed 的区别
+
+一、OOMKilled
+OOMKilled 说明容器超过内存限制，通常结合资源 limits、JVM 堆设置和瞬时内存峰值排查。
+
+二、Probe Failed
+Probe Failed 更像应用虽然还活着，但健康检查接口超时、启动慢、依赖异常或线程卡死，导致被 kubelet 判定不健康。
+
+三、排查重点
+两者都会造成重启，但前者先看内存与资源限制，后者先看探针路径、超时时间、启动时长和应用日志。

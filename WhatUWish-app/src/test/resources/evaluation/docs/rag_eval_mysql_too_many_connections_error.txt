@@ -1,0 +1,7 @@
+标题：MySQL Too many connections 错误码边界
+一、错误含义
+Too many connections 说明数据库服务端已达到最大连接上限，请求可能在建连阶段直接失败。
+二、与慢 SQL 的区别
+慢 SQL 会拖住已有连接，但 Too many connections 更像容量上限先被打满，两者经常相关却不是同一个诊断结论。
+三、排查顺序
+先看 max_connections、当前连接数、连接池占用，再回到慢 SQL、事务未提交和连接释放异常。

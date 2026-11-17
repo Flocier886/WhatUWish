@@ -1,0 +1,7 @@
+标题：Metaspace 异常的日志片段特征
+一、常见关键词
+Metadata GC Threshold、Metaspace、Compressed Class Space、class loading spike。
+二、容易误判点
+很多人只看到 Full GC 就去怀疑堆内存泄漏，但 metaspace 压力更像类加载过多或类卸载不及时。
+三、使用场景
+如果 query 里直接带有 Metadata GC Threshold 或 metaspace 关键字，关键词召回通常会比纯语义相似更稳。

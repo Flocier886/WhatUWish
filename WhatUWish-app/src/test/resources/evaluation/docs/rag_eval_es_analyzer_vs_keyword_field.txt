@@ -1,0 +1,10 @@
+标题：ES analyzer 字段与 keyword 字段的差异
+
+一、text/analyzer
+适合全文检索、分词和相关性排序，常用于 content、message 这类长文本字段。
+
+二、keyword
+适合精确过滤、聚合和等值匹配，常用于服务名、错误码、标签和值对象。
+
+三、工程含义
+如果查询目标是精确代码、命令名或配置键，只做 analyzer 检索可能不如 keyword 过滤稳定。

@@ -1,0 +1,7 @@
+标题：Kubernetes 探针超时相关配置键
+一、关键配置
+livenessProbe、readinessProbe、startupProbe 里的 timeoutSeconds、periodSeconds、failureThreshold、initialDelaySeconds 都会影响重启表现。
+二、常见误区
+应用只是冷启动慢或依赖预热慢时，如果 timeoutSeconds 太小，也会被误判成不健康并触发重启。
+三、适合的检索方式
+当查询直接包含 timeoutSeconds、failureThreshold、startupProbe 这类配置键时，关键词召回价值会明显上升。
