@@ -39,6 +39,7 @@ def settings() -> ImageGenerationSettings:
         timeout_seconds=300,
         max_reference_bytes=1024 * 1024,
         max_output_count=4,
+        api_style="auto",
     )
 
 
@@ -86,6 +87,7 @@ def test_image_settings_uses_dedicated_section_and_never_exposes_key():
             "api-key": "shared-secret",
         },
         "image-generation-runtime": {
+            "api-style": "images",
             "model": "image-model",
             "timeout-seconds": 900,
             "max-output-count": 3,
@@ -93,6 +95,7 @@ def test_image_settings_uses_dedicated_section_and_never_exposes_key():
     })
 
     assert configured.model == "image-model"
+    assert configured.api_style == "images"
     assert configured.max_output_count == 3
     assert "shared-secret" not in json.dumps(configured.safe_metadata())
 
@@ -145,6 +148,41 @@ def test_text_to_image_keeps_responses_then_legacy_fallback_request_shape():
     assert fallback is not None
     assert fallback["url"].endswith("/images/generations")
     assert fallback["body"]["size"] == "1536x1024"
+
+
+def test_workbuddy_image_style_uses_images_endpoint_without_responses_probe():
+    primary, fallback = asyncio.run(
+        image_core._build_generation_requests(
+            start_request(size="1024x1024", n=1),
+            "images",
+            "http://127.0.0.1:3425/v1",
+            "workbuddy/hunyuan-image-alpha",
+            object(),
+            object(),
+            api_style="images",
+        )
+    )
+
+    assert primary["url"].endswith("/images/generations")
+    assert primary["body"]["model"] == "workbuddy/hunyuan-image-alpha"
+    assert fallback is None
+
+
+def test_responses_image_style_does_not_probe_images_endpoint():
+    primary, fallback = asyncio.run(
+        image_core._build_generation_requests(
+            start_request(size="1024x1024", n=1),
+            "images",
+            "http://127.0.0.1:3425/v1",
+            "responses-image-model",
+            object(),
+            object(),
+            api_style="responses",
+        )
+    )
+
+    assert primary["url"].endswith("/responses")
+    assert fallback is None
 
 
 def test_single_image_edit_keeps_native_multipart_mask_and_chat_fallback(monkeypatch):

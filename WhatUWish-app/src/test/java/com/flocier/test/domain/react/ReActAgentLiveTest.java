@@ -13,6 +13,7 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.junit4.SpringRunner;
 
 import java.util.List;
+import java.util.UUID;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
@@ -26,9 +27,10 @@ public class ReActAgentLiveTest {
 
     @Test
     public void shouldRunReactAgentThroughRealLlm() {
+        String requestId = "react-live-" + UUID.randomUUID();
         AgentContext context = AgentContext.builder()
-                .requestId("react-live-test")
-                .sessionId("react-live-test")
+                .requestId(requestId)
+                .sessionId(requestId)
                 .query("请使用工具帮我整理一句包含今天天气很好含义的中文短句。")
                 .task("请使用工具帮我整理一句包含今天天气很好含义的中文短句。")
                 .maxStep(3)

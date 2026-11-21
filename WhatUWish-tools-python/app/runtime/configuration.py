@@ -74,6 +74,7 @@ _ENVIRONMENT_OVERRIDES: dict[str, tuple[str, str]] = {
     # 图片生成模型与普通调研/报告模型可以共用连接配置，但图片任务的耗时和
     # 输入输出预算必须独立收紧。凭据只在服务端 YAML 或部署环境中出现。
     "IMAGE_GENERATION_PROVIDER": ("image-generation-runtime", "provider"),
+    "IMAGE_GENERATION_API_STYLE": ("image-generation-runtime", "api-style"),
     "IMAGE_GENERATION_MODEL": ("image-generation-runtime", "model"),
     "IMAGE_GENERATION_BASE_URL": ("image-generation-runtime", "api-base"),
     "IMAGE_GENERATION_API_KEY": ("image-generation-runtime", "api-key"),

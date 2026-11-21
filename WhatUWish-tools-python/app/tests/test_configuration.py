@@ -108,6 +108,7 @@ image-generation-runtime:
     configuration = load_application_configuration(
         root=tmp_path,
         environ={
+            "IMAGE_GENERATION_API_STYLE": "images",
             "IMAGE_GENERATION_MODEL": "deployment-image-model",
             "IMAGE_GENERATION_MAX_OUTPUT_COUNT": "6",
         },
@@ -115,6 +116,7 @@ image-generation-runtime:
     settings = ImageGenerationSettings.from_configuration(configuration)
 
     assert settings.model == "deployment-image-model"
+    assert settings.api_style == "images"
     assert settings.max_output_count == 6
     assert settings.timeout_seconds == 900
     assert "inherited-secret" not in str(settings.safe_metadata())

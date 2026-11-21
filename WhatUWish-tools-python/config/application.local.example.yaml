@@ -20,6 +20,8 @@ web-search:
   #     api-base: https://api.openai.com/v1/responses
   #     model: gpt-4.1
   #     api-key: "在这里填写 OpenAI API Key（须支持 Responses web_search_preview）"
+  #     # Magpie 示例：api-base 改为 http://127.0.0.1:3425/v1/responses，
+  #     # model 改为 workbuddy/deepseek-v4.1-flash，api-key 填本地占位值即可。
   #   - provider: exa
   #     api-base: https://api.exa.ai/search
   #     api-key: "在这里填写 Exa API Key"
@@ -34,6 +36,12 @@ deepsearch-runtime:
   # model: "在这里填写模型名"
   # api-base: "在这里填写 OpenAI Compatible Base URL"
   # api-key: "在这里填写模型 API Key"
+
+image-generation-runtime:
+  # api-style: auto  # WorkBuddy 的 Hunyuan/HY-Image 请填 images
+  # model: "在这里填写生图模型名"
+  # api-base: "在这里填写 OpenAI Compatible Base URL"
+  # api-key: "在这里填写生图服务 API Key"
 
 code-execution:
   # enabled: true # Java 已开放 code_execution/bash 时，Python 也必须启用

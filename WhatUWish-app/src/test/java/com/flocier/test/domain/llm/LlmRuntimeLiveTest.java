@@ -44,8 +44,8 @@ public class LlmRuntimeLiveTest {
         LlmResolvedModel resolvedModel = llmSettingsRegistry.resolve(null);
 
         assertNotNull(resolvedModel);
-        assertEquals("default-chat", resolvedModel.getAlias());
-        assertEquals("gpt-4o-mini", resolvedModel.getConfig().getModel());
+        assertEquals("workbuddy-chat", resolvedModel.getAlias());
+        assertEquals("workbuddy/deepseek-v4.1-flash", resolvedModel.getConfig().getModel());
         assertTrue(StringUtils.hasText(resolvedModel.getConfig().getBaseUrl()));
         assertTrue(StringUtils.hasText(resolvedModel.getConfig().getApiKey()));
     }
@@ -70,10 +70,10 @@ public class LlmRuntimeLiveTest {
                 .build());
 
         assertNotNull(response);
-        assertEquals("gpt-4o-mini", configuredModel);
+        assertEquals("workbuddy/deepseek-v4.1-flash", configuredModel);
         assertTrue("真实响应模型名应匹配配置模型前缀",
                 StringUtils.hasText(response.getModel()) && response.getModel().startsWith(configuredModel));
-        assertEquals("default-openai", response.getProvider());
+        assertEquals("magpie-workbuddy", response.getProvider());
         assertTrue("真实调用返回文本不应为空", StringUtils.hasText(response.getText()));
         assertNotNull("开启 extract-usage 后 usage 不应为空", response.getUsage());
 

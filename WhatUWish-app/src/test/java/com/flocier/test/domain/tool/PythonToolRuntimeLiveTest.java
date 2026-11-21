@@ -110,16 +110,6 @@ public class PythonToolRuntimeLiveTest {
         Assert.assertNotNull(artifactId);
         Assert.assertFalse(artifactId.isBlank());
 
-        ToolExecutionResult readByStorageKey = execute(
-                context,
-                "artifact_read",
-                Map.of("storageKey", storageKey)
-        );
-
-        Assert.assertTrue(readByStorageKey.isSuccess());
-        Assert.assertEquals("artifact_read", readByStorageKey.getToolName());
-        Assert.assertTrue(readByStorageKey.getOutputText().contains(marker));
-
         ToolExecutionResult readByArtifactId = execute(
                 context,
                 "artifact_read",

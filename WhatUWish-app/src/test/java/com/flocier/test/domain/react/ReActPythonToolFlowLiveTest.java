@@ -40,8 +40,8 @@ public class ReActPythonToolFlowLiveTest {
         String artifactName = "artifact-react-e2e-" + suffix + ".txt";
         String marker = "artifact-react-e2e-marker-20260722-" + suffix;
         String task = "请严格按顺序完成以下任务：第一步，必须调用 artifact_save，将文本 '" + marker
-                + "' 保存为 '" + artifactName + "'。第二步，从 artifact_save 返回的 observation 中取得 storageKey，"
-                + "必须调用 artifact_read(storageKey=...) 回读该文件，禁止使用 path 或 name 参数。"
+                + "' 保存为 '" + artifactName + "'。第二步，从 artifact_save 返回的 observation 中取得 artifactId，"
+                + "必须调用 artifact_read(artifactId=...) 回读该文件，禁止使用 path、name 或 storageKey 参数。"
                 + "第三步，确认读取结果包含原始文本后，用中文简短说明完成情况。";
         AgentContext context = AgentContext.builder()
                 .requestId("react-python-artifact-flow-request-" + suffix)
@@ -66,7 +66,7 @@ public class ReActPythonToolFlowLiveTest {
         ToolExecutionResult readResult = findFirstTool(context, "artifact_read");
         Assert.assertNotNull(saveResult);
         Assert.assertTrue(saveResult.isSuccess());
-        Assert.assertTrue(saveResult.getLlmObservation().contains("storageKey"));
+        Assert.assertTrue(saveResult.getLlmObservation().contains("artifactId"));
         Assert.assertNotNull(readResult);
         Assert.assertTrue(readResult.isSuccess());
         Assert.assertTrue(readResult.getOutputText().contains(marker));

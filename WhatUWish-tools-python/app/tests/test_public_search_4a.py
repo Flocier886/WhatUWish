@@ -40,16 +40,23 @@ def test_exa_and_brave_follow_master_protocol_and_domain_filters():
     assert brave.search("research", 2, blocked_domains=("blocked.org",))[0].provider == "brave"
 
 
-def test_gpt_uses_responses_citations_only():
+def test_gpt_uses_responses_citations_and_web_search_sources():
     def handler(request: httpx.Request) -> httpx.Response:
         body = json.loads(request.content)
         assert body == {"model": "test-model", "input": "research", "tools": [
             {"type": "web_search_preview", "filters": {"allowed_domains": ["example.org"]}}]}
-        return httpx.Response(200, json={"output": [{"content": [{"text": "Finding", "annotations": [
-            {"type": "url_citation", "title": "Cited", "url": "https://example.org/page#section"}]}]}]})
+        return httpx.Response(200, json={"output": [
+            {"type": "web_search_call", "action": {"sources": [
+                {"type": "url", "url": "https://example.org/source"}]}},
+            {"content": [{"text": "Finding", "annotations": [
+                {"type": "url_citation", "title": "Cited", "url": "https://example.org/page#section"}]}]},
+        ]})
 
     provider = GptSearchProvider(setting("gpt"), httpx.MockTransport(handler))
-    assert [item.url for item in provider.search("research", 2, ("example.org",))] == ["https://example.org/page"]
+    assert [item.url for item in provider.search("research", 2, ("example.org",))] == [
+        "https://example.org/source",
+        "https://example.org/page",
+    ]
 
 
 def test_grok_falls_back_to_search_parameters_and_extracts_citation():

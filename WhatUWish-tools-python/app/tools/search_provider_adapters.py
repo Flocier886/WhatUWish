@@ -115,6 +115,14 @@ class GptSearchProvider(_HttpSearchProvider):
         for item in output or []:
             if not isinstance(item, dict):
                 continue
+            if item.get("type") == "web_search_call":
+                action = item.get("action")
+                sources = action.get("sources") if isinstance(action, dict) else None
+                for source in sources if isinstance(sources, list) else []:
+                    if isinstance(source, dict):
+                        citations.append(source)
+                    elif isinstance(source, str):
+                        citations.append({"url": source})
             for part in item.get("content", []) if isinstance(item.get("content"), list) else []:
                 if not isinstance(part, dict):
                     continue

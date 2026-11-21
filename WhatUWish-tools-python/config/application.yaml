@@ -61,6 +61,9 @@ report-runtime:
 # 请求均不可传入或覆盖这些敏感连接信息。
 image-generation-runtime:
   provider: openai-compatible
+  # auto: 先试 Responses image_generation，失败时回退 images；images: 直接调用 /images/generations。
+  # WorkBuddy 的 Hunyuan/HY-Image 生图应使用 images。
+  api-style: auto
   # 图片生成可能经历 Responses / native edits / legacy / chat 兼容降级，不能沿用
   # 普通短请求的超时；真实值由服务端配置，单元测试使用 mock upstream。
   timeout-seconds: 900

@@ -123,6 +123,7 @@ async def generate_images(
             mode=mode,
             base_url=_normalize_openai_compat_api_base(settings.base_url),
             model_name=settings.model,
+            api_style=settings.api_style,
             client=client,
             artifact_adapter=artifact_adapter,
         )
@@ -157,21 +158,28 @@ async def _build_generation_requests(
     model_name: str,
     client: httpx.AsyncClient,
     artifact_adapter: ImageArtifactAdapter,
+    api_style: str = "auto",
 ) -> tuple[dict[str, Any], dict[str, Any] | None]:
     """保留 master 的 images / 单图 edit / 多图 edit 及各自 fallback。"""
     if mode == "images":
+        images_request = {"url": f"{base_url}/images/generations", "body": {
+            "model": model_name, "prompt": request.prompt, "n": request.n,
+            "size": request.size or DEFAULT_IMAGE_SIZE,
+        }}
+        if api_style == "images":
+            return images_request, None
         tool: dict[str, Any] = {"type": "image_generation"}
         if request.size:
             tool["size"] = request.size
         if request.n > 1:
             tool["n"] = request.n
-        return (
-            {"url": f"{base_url}/responses", "body": {"model": model_name, "input": request.prompt, "tools": [tool]}},
-            {"url": f"{base_url}/images/generations", "body": {
-                "model": model_name, "prompt": request.prompt, "n": request.n,
-                "size": request.size or DEFAULT_IMAGE_SIZE,
-            }},
-        )
+        responses_request = {
+            "url": f"{base_url}/responses",
+            "body": {"model": model_name, "input": request.prompt, "tools": [tool]},
+        }
+        if api_style == "responses":
+            return responses_request, None
+        return responses_request, images_request
     if len(request.reference_artifacts) == 1:
         primary_request = await _build_native_edit_request(request, base_url, model_name, client, artifact_adapter)
         _, chat_content = await _build_edit_contents(request, client, artifact_adapter)

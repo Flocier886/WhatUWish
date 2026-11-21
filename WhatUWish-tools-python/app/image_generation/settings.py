@@ -18,6 +18,7 @@ class ImageGenerationSettings:
     timeout_seconds: int
     max_reference_bytes: int
     max_output_count: int
+    api_style: str = "auto"
 
     @classmethod
     def load(cls) -> "ImageGenerationSettings":
@@ -34,6 +35,7 @@ class ImageGenerationSettings:
             return str(values.get(name, default) or "").strip() or default
 
         provider = text("provider", "openai-compatible").lower()
+        api_style = text("api-style", "auto").lower()
         model = text("model")
         base_url = text("api-base")
         api_key = text("api-key")
@@ -44,8 +46,14 @@ class ImageGenerationSettings:
             )
         if provider not in {"openai", "openai-compatible"}:
             raise ToolExecutionError("image_generation_not_configured", f"不支持的图片模型 Provider: {provider}")
+        if api_style not in {"auto", "responses", "images"}:
+            raise ToolExecutionError(
+                "image_generation_not_configured",
+                "image-generation-runtime.api-style 必须是 auto、responses 或 images",
+            )
         return cls(
             provider=provider,
+            api_style=api_style,
             model=model,
             base_url=base_url.rstrip("/"),
             api_key=api_key,
@@ -55,7 +63,12 @@ class ImageGenerationSettings:
         )
 
     def safe_metadata(self) -> dict[str, object]:
-        return {"provider": self.provider, "modelAlias": self.model, "configured": True}
+        return {
+            "provider": self.provider,
+            "apiStyle": self.api_style,
+            "modelAlias": self.model,
+            "configured": True,
+        }
 
 
 def number(values: Mapping[str, Any], name: str, default: int, minimum: int, maximum: int) -> int:
